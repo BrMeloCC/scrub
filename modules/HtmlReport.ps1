@@ -16,7 +16,49 @@
         return "$b B"
     }
 
+    # ── Summary section ──────────────────────────────────────────────────────
     $sections = [System.Text.StringBuilder]::new()
+    $summaryRows = [System.Text.StringBuilder]::new()
+    $grandFreed = 0L
+    $grandPotential = 0L
+
+    $moduleLabels = @{
+        TempCleaner        = "Temp Files"
+        RecycleBin         = "Recycle Bin"
+        BrowserCache       = "Browser Cache"
+        SystemLogClean     = "System Logs"
+        NodeCacheClean     = "Node.js Caches"
+        HiberfileCleaner   = "Hiberfil.sys"
+        DevProjectClean    = "Dev Project Cleanup"
+        WindowsUpdateCache = "Windows Update Cache"
+    }
+
+    foreach ($key in $moduleLabels.Keys) {
+        if (-not $Results.ContainsKey($key)) { continue }
+        $r = $Results[$key]
+        $freed = if ($r.BytesFreed) { [long]$r.BytesFreed } else { 0L }
+        $potential = 0L
+        if ($r.Items) { foreach ($item in $r.Items) { if ($item.SizeBytes) { $potential += [long]$item.SizeBytes } } }
+        if ($freed -eq 0 -and $potential -eq 0) { continue }
+        $grandFreed += $freed
+        $grandPotential += $potential
+        $label = $moduleLabels[$key]
+        if ($freed -gt 0) {
+            [void]$summaryRows.Append("<tr><td>$label</td><td style='color:#3fb950'>$(_HumanBytes $freed)</td><td>—</td></tr>")
+        } else {
+            [void]$summaryRows.Append("<tr><td>$label</td><td>—</td><td style='color:#d29922'>$(_HumanBytes $potential)</td></tr>")
+        }
+    }
+
+    if ($summaryRows.Length -gt 0) {
+        $totalFreed = if ($grandFreed -gt 0) { "<strong style='color:#3fb950'>$(_HumanBytes $grandFreed)</strong>" } else { "—" }
+        $totalPot   = if ($grandPotential -gt 0) { "<strong style='color:#d29922'>$(_HumanBytes $grandPotential)</strong>" } else { "—" }
+        [void]$sections.Append('<section id="summary"><h2>Summary</h2>')
+        [void]$sections.Append('<table><thead><tr><th>Module</th><th>Freed</th><th>Would free</th></tr></thead><tbody>')
+        [void]$sections.Append($summaryRows.ToString())
+        [void]$sections.Append("<tr style='border-top:1px solid #30363d'><td><strong>Total</strong></td><td>$totalFreed</td><td>$totalPot</td></tr>")
+        [void]$sections.Append('</tbody></table></section>')
+    }
 
     # ── Pending Reboot section ───────────────────────────────────
     if ($Results.ContainsKey("PendingReboot")) {
@@ -356,14 +398,14 @@
     # ── Software Audit section ────────────────────────────────────
     if ($Results.ContainsKey("SoftwareAudit")) {
         $sa = $Results["SoftwareAudit"]
-        [void]$sections.Append("<section><h2>Software Instalado (ultimos $($sa.LastDays) dias)</h2>")
+        [void]$sections.Append("<section><h2>Recently Installed Software (last $($sa.LastDays) days)</h2>")
         if ($sa.Items.Count -eq 0) {
-            [void]$sections.Append("<p>Nenhum software instalado encontrado neste periodo.</p>")
+            [void]$sections.Append("<p>No software installed in this period.</p>")
         } else {
-            [void]$sections.Append("<p><strong>$($sa.Items.Count)</strong> programa(s) instalado(s).</p>")
-            [void]$sections.Append('<table><thead><tr><th>Nome</th><th>Publisher</th><th>Versao</th><th>Data</th><th>Tamanho</th></tr></thead><tbody>')
+            [void]$sections.Append("<p><strong>$($sa.Items.Count)</strong> program(s) installed.</p>")
+            [void]$sections.Append('<table><thead><tr><th>Name</th><th>Publisher</th><th>Version</th><th>Date</th><th>Size</th></tr></thead><tbody>')
             foreach ($item in $sa.Items) {
-                $dateFmt = if ($item.InstallDate) { ([datetime]$item.InstallDate).ToString("dd/MM/yyyy") } else { "" }
+                $dateFmt = if ($item.InstallDate) { try { ([datetime]$item.InstallDate).ToString("yyyy-MM-dd") } catch { $item.InstallDate } } else { "" }
                 $sizeFmt = if ($item.SizeBytes -gt 0) { _HumanBytes $item.SizeBytes } else { "" }
                 [void]$sections.Append("<tr><td>$([System.Web.HttpUtility]::HtmlEncode($item.Name))</td><td>$([System.Web.HttpUtility]::HtmlEncode($item.Publisher))</td><td>$([System.Web.HttpUtility]::HtmlEncode($item.Version))</td><td>$dateFmt</td><td>$sizeFmt</td></tr>")
             }
@@ -377,18 +419,18 @@
         $dc = $Results["DevProjectClean"]
         [void]$sections.Append("<section><h2>Dev Project Cleanup</h2>")
         if ($dc.Projects.Count -eq 0) {
-            [void]$sections.Append("<p>Nenhum projeto encontrado. Configure <code>dev_cleanup.scan_paths</code> em config.json.</p>")
+            [void]$sections.Append("<p>No projects found. Set <code>dev_cleanup.scan_paths</code> in config.json.</p>")
         } else {
             $totalHeavy = ($dc.Projects | Measure-Object -Property HeavyBytes -Sum).Sum
             $due        = @($dc.Projects | Where-Object { $_.IsDue })
             $modeNote   = if ($dc.DryRun) { " (dry-run)" } else { " (LIVE)" }
-            [void]$sections.Append("<p><strong>$($dc.Projects.Count)</strong> projeto(s) encontrado(s)$modeNote &mdash; <strong>$($due.Count)</strong> devidos &mdash; total recuperavel: <strong>$(_HumanBytes $totalHeavy)</strong></p>")
-            [void]$sections.Append('<table><thead><tr><th>Projeto</th><th>Ultima modificacao</th><th>Pastas pesadas</th><th>Tamanho</th><th>Status</th></tr></thead><tbody>')
+            [void]$sections.Append("<p><strong>$($dc.Projects.Count)</strong> project(s)$modeNote &mdash; <strong>$($due.Count)</strong> due &mdash; recoverable: <strong>$(_HumanBytes $totalHeavy)</strong></p>")
+            [void]$sections.Append('<table><thead><tr><th>Project</th><th>Last modified</th><th>Heavy folders</th><th>Size</th><th>Status</th></tr></thead><tbody>')
             foreach ($proj in $dc.Projects) {
-                $lastFmt  = if ($proj.LastWrite) { ([datetime]$proj.LastWrite).ToString("dd/MM/yyyy") } else { "" }
+                $lastFmt  = if ($proj.LastWrite) { try { ([datetime]$proj.LastWrite).ToString("yyyy-MM-dd") } catch { "" } } else { "" }
                 $folders  = ($proj.Folders | ForEach-Object { $_.Name }) -join ", "
                 $cls      = if ($proj.IsDue) { "row-notice" } else { "" }
-                $status   = if (-not $proj.IsDue) { "em dia" } elseif ($dc.DryRun) { "pendente" } else { "limpo" }
+                $status   = if (-not $proj.IsDue) { "up to date" } elseif ($dc.DryRun) { "pending" } else { "cleaned" }
                 [void]$sections.Append("<tr class='$cls'><td class='path'>$([System.Web.HttpUtility]::HtmlEncode($proj.Path))</td><td>$lastFmt</td><td>$([System.Web.HttpUtility]::HtmlEncode($folders))</td><td>$(_HumanBytes $proj.HeavyBytes)</td><td>$status</td></tr>")
             }
             [void]$sections.Append('</tbody></table>')
@@ -396,9 +438,33 @@
         [void]$sections.Append('</section>')
     }
 
+    # ── Windows Update Cache section ──────────────────────────────
+    if ($Results.ContainsKey("WindowsUpdateCache")) {
+        $wc = $Results["WindowsUpdateCache"]
+        [void]$sections.Append('<section><h2>Windows Update Cache</h2>')
+        if ($wc.Errors -contains "REQUIRES_ADMIN") {
+            [void]$sections.Append("<p style='color:#d29922'>Requires admin rights to clean.</p>")
+        } elseif ($wc.Items.Count -gt 0) {
+            $item = $wc.Items[0]
+            if ($wc.BytesFreed -gt 0) {
+                [void]$sections.Append("<p style='color:#3fb950'>Freed <strong>$(_HumanBytes $wc.BytesFreed)</strong> from Windows Update cache.</p>")
+            } else {
+                [void]$sections.Append("<p>Cache size: <strong>$(_HumanBytes $item.SizeBytes)</strong> ($($item.FileCount) files) — run LIVE as admin to clean.</p>")
+            }
+        } else {
+            [void]$sections.Append("<p>Cache is empty or not accessible.</p>")
+        }
+        foreach ($err in $wc.Errors) {
+            if ($err -ne "REQUIRES_ADMIN") {
+                [void]$sections.Append("<p style='color:#f85149'>$([System.Web.HttpUtility]::HtmlEncode($err))</p>")
+            }
+        }
+        [void]$sections.Append('</section>')
+    }
+
     $html = @"
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -411,6 +477,7 @@
   .badge { font-size: 11px; font-weight: 700; border-radius: 4px; padding: 3px 8px; letter-spacing: .05em; }
   .badge-dryrun { background: #264f78; color: #79c0ff; }
   .badge-live   { background: #3d1f00; color: #ffa657; }
+  .score-badge  { font-size: 14px; font-weight: 700; margin-left: 8px; }
   .meta { font-size: 12px; color: #8b949e; margin-left: auto; }
   main { max-width: 1200px; margin: 0 auto; padding: 24px 32px; }
   section { background: #161b22; border: 1px solid #30363d; border-radius: 8px; margin-bottom: 20px; padding: 20px 24px; }
@@ -436,6 +503,11 @@
 <header>
   <h1>Scrub</h1>
   <span class="badge $modeBadge">$modeLabel</span>
+  $(if ($Results -and $Results.ContainsKey("HealthScore")) {
+    $hs = $Results["HealthScore"]
+    $scoreColor = if ($hs.Score -ge 80) { "#3fb950" } elseif ($hs.Score -ge 50) { "#d29922" } else { "#f85149" }
+    "<span class='score-badge' style='color:$scoreColor'>Score: $($hs.Score)</span>"
+  })
   <span class="meta">$runDate</span>
 </header>
 <main>

@@ -296,6 +296,108 @@ function Show-RunSummary {
     Write-Host ""
 }
 
+# ── Diagnostics summary ──────────────────────────────────────────────────────
+
+function Show-DiagnosticsSummary {
+    param([object] $Results)
+    if (-not $Results) { return }
+
+    Write-Host ""
+    Write-Host "  ── $($script:ScrubStr.DIAG_TITLE) " -NoNewline -ForegroundColor White
+    Write-Host ("─" * 38) -ForegroundColor DarkGray
+    Write-Host ""
+
+    function _DRow([string]$label, [string]$val, [string]$color = "Gray") {
+        Write-Host ("  {0,-26}" -f $label) -NoNewline -ForegroundColor DarkGray
+        Write-Host $val -ForegroundColor $color
+    }
+
+    # Disk space
+    if ($Results["DiskReport"]) {
+        $dr = $Results["DiskReport"]
+        $primary = $dr.Drives | Where-Object { $_.Drive -eq "C:\" } | Select-Object -First 1
+        if (-not $primary) { $primary = $dr.Drives | Select-Object -First 1 }
+        if ($primary) {
+            $col = if ($primary.UsedPct -ge 90) { "Red" } elseif ($primary.UsedPct -ge 75) { "Yellow" } else { "Green" }
+            _DRow $script:ScrubStr.DIAG_DISK_SPACE "$($primary.FreeGB) GB $($script:ScrubStr.DIAG_FREE) / $($primary.TotalGB) GB ($($primary.UsedPct)% $($script:ScrubStr.DIAG_USED))" $col
+        }
+    }
+
+    # Disk health
+    if ($Results["HealthCheck"]) {
+        $hc = $Results["HealthCheck"]
+        $bad = $hc.Disks | Where-Object { $_.AlertLevel -eq "CRITICAL" }
+        if ($bad) {
+            _DRow $script:ScrubStr.DIAG_DISK_HEALTH "$($hc.Disks.Count) $($script:ScrubStr.DIAG_DISKS) — $($bad.Count) CRITICAL" "Red"
+        } else {
+            _DRow $script:ScrubStr.DIAG_DISK_HEALTH "$($hc.Disks.Count) $($script:ScrubStr.DIAG_DISKS) OK" "Green"
+        }
+    }
+
+    # Pending reboot
+    if ($Results["PendingReboot"]) {
+        $pr = $Results["PendingReboot"]
+        if ($pr.RebootRequired) {
+            _DRow $script:ScrubStr.DIAG_REBOOT $script:ScrubStr.DIAG_REBOOT_YES "Yellow"
+        } else {
+            _DRow $script:ScrubStr.DIAG_REBOOT $script:ScrubStr.DIAG_REBOOT_NO "Green"
+        }
+    }
+
+    # Event log
+    if ($Results["EventLogScan"]) {
+        $el = $Results["EventLogScan"]
+        $critCount = ($el.Groups | Where-Object { $_.Level -eq "Critical" } | Measure-Object).Count
+        if ($critCount -gt 0) {
+            _DRow $script:ScrubStr.DIAG_EVENT_LOG "$($el.TotalErrors) $($script:ScrubStr.DIAG_ERRORS) ($critCount critical)" "Red"
+        } elseif ($el.TotalErrors -gt 0) {
+            _DRow $script:ScrubStr.DIAG_EVENT_LOG "$($el.TotalErrors) $($script:ScrubStr.DIAG_ERRORS)" "Yellow"
+        } else {
+            _DRow $script:ScrubStr.DIAG_EVENT_LOG $script:ScrubStr.DIAG_NO_ERRORS "Green"
+        }
+    }
+
+    # Drivers
+    if ($Results["DriverAudit"]) {
+        $da = $Results["DriverAudit"]
+        if ($da.ProblematicCount -gt 0) {
+            _DRow $script:ScrubStr.DIAG_DRIVERS "$($da.TotalDevices) $($script:ScrubStr.DIAG_DEVICES) — $($da.ProblematicCount) $($script:ScrubStr.DIAG_PROBLEMS)" "Yellow"
+        } else {
+            _DRow $script:ScrubStr.DIAG_DRIVERS "$($da.TotalDevices) $($script:ScrubStr.DIAG_DEVICES) OK" "Green"
+        }
+    }
+
+    # Startup
+    if ($Results["StartupAudit"]) {
+        $sa = $Results["StartupAudit"]
+        _DRow $script:ScrubStr.DIAG_STARTUP "$($sa.Items.Count) $($script:ScrubStr.DIAG_ENTRIES)" "Gray"
+    }
+
+    # Windows Update
+    if ($Results["WindowsUpdateCheck"]) {
+        $wu = $Results["WindowsUpdateCheck"]
+        if ($wu.Errors.Count -gt 0) {
+            _DRow $script:ScrubStr.DIAG_UPDATES $script:ScrubStr.DIAG_UPDATE_ERR "DarkGray"
+        } elseif ($wu.PendingCount -gt 0) {
+            _DRow $script:ScrubStr.DIAG_UPDATES "$($wu.PendingCount) $($script:ScrubStr.DIAG_PENDING)" "Yellow"
+        } else {
+            _DRow $script:ScrubStr.DIAG_UPDATES $script:ScrubStr.DIAG_UP_TO_DATE "Green"
+        }
+    }
+
+    # Health score
+    if ($Results["HealthScore"]) {
+        $hs = $Results["HealthScore"]
+        $col = Format-ScoreColor -Score $hs.Score
+        Write-Host ""
+        Write-Host ("  {0,-26}" -f $script:ScrubStr.DIAG_SCORE) -NoNewline -ForegroundColor DarkGray
+        Write-Host $hs.Score -ForegroundColor $col
+    }
+
+    Write-Host ""
+    Write-Host ("  " + ("─" * 52)) -ForegroundColor DarkGray
+}
+
 # ── Rotina inteligente ────────────────────────────────────────────────────────
 
 function Show-SmartRoutine {
@@ -1476,18 +1578,13 @@ function Show-Menu {
                 $diag = @{}
                 foreach ($m in $script:CATALOG) { $diag[$m.Key] = $false }
                 $diag["driver_audit"]         = $true
-                $diag["large_file_finder"]    = $true
-                $diag["downloads_audit"]      = $true
                 $diag["event_log_scan"]       = $true
                 $diag["startup_audit"]        = $true
-                $diag["hiberfil_cleaner"]     = $true
                 $diag["windows_update_check"] = $true
-                $diag["disk_optimize"]        = $true
-                $diag["software_audit"]       = $true
 
                 Write-ScrubHeader
                 $res = Invoke-ScrubCustom -Toggles $diag -DryRun $true
-                Show-RunSummary -Results $res -DryRun $true
+                Show-DiagnosticsSummary -Results $res
                 Open-LatestReport
                 Write-Host ""
                 $Host.UI.RawUI.FlushInputBuffer()

@@ -3,7 +3,7 @@
 $MODULE_ROOT = if ($PSScriptRoot) { $PSScriptRoot } else { Split-Path -Parent $MyInvocation.MyCommand.Path }
 
 # Load all sub-modules
-foreach ($mod in @("TempCleaner", "RecycleBin", "DiskReport", "BrowserCache", "LargeFileFinder", "DuplicateFinder", "EventLogScan", "HibernationClean", "StartupAudit", "SystemLogClean", "NodeCacheClean", "DriverAudit", "SystemRepair", "DiskOptimize", "WindowsUpdateCheck", "RestorePoint", "PendingReboot", "HtmlReport", "SoftwareAudit", "HealthScore", "DevProjectClean", "FolderSizeAnalyzer")) {
+foreach ($mod in @("TempCleaner", "RecycleBin", "DiskReport", "BrowserCache", "LargeFileFinder", "DuplicateFinder", "EventLogScan", "HibernationClean", "StartupAudit", "SystemLogClean", "NodeCacheClean", "DriverAudit", "SystemRepair", "DiskOptimize", "WindowsUpdateCheck", "WindowsUpdateCacheClean", "RestorePoint", "PendingReboot", "HtmlReport", "SoftwareAudit", "HealthScore", "DevProjectClean", "FolderSizeAnalyzer")) {
     . (Join-Path $MODULE_ROOT "modules\$mod.ps1")
 }
 
@@ -347,11 +347,11 @@ function Invoke-Scrub {
 
     # -- Opt-in: Software Audit --
     if ($cfg.modules.software_audit) {
-        Write-Host "  Software recente..." -NoNewline
+        Write-Host "  Software audit..."
         $swDays = if ($cfg.min_age_days -and $cfg.min_age_days.software_audit) { [int]$cfg.min_age_days.software_audit } else { 30 }
         $r = Get-SoftwareAudit -LastDays $swDays -LogPath $logPath
         $results["SoftwareAudit"] = $r
-        Write-Host " $($r.Items.Count) instalado(s) nos ultimos $swDays dias" -ForegroundColor Gray
+        Write-Host "  $($r.Items.Count) installed in last $swDays days" -ForegroundColor Gray
     }
 
     # -- Opt-in: Windows Update Cache (admin only) --

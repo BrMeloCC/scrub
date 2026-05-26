@@ -135,16 +135,6 @@
     HIST_NO_DATA    = "No data found."
     HIST_NO_DATA2   = "Run at least one routine to generate history."
 
-    # Watch mode
-    WATCH_TITLE     = "Scrub Watch"
-    WATCH_STARTED   = "Watch mode started. Updating every {0}s. Ctrl+C to exit."
-    WATCH_USED      = "used"
-    WATCH_FREE_GB   = "GB free"
-    WATCH_PENDING   = "PENDING"
-    WATCH_LAST      = "Last run:"
-    WATCH_UPDATE    = "Updating every {0}s"
-    WATCH_EXIT      = "to exit"
-
     # Startup manager
     START_TITLE     = "Manage Startup"
     START_LOADING   = "Loading entries..."
@@ -200,6 +190,30 @@
     # Uninstall
     UNINSTALL_CONFIRM = "Remove Scrub from PATH, Start Menu and PS module?"
     UNINSTALL_EXIT  = "Press Enter to exit"
+
+    # Diagnostics panel
+    DIAG_TITLE      = "Diagnostics"
+    DIAG_DISK_SPACE = "Disk space (C:)"
+    DIAG_DISK_HEALTH= "Disk health (SMART)"
+    DIAG_REBOOT     = "Pending reboot"
+    DIAG_REBOOT_YES = "reboot required"
+    DIAG_REBOOT_NO  = "not required"
+    DIAG_EVENT_LOG  = "Event log errors (24h)"
+    DIAG_DRIVERS    = "Drivers"
+    DIAG_STARTUP    = "Startup entries"
+    DIAG_UPDATES    = "Windows Updates"
+    DIAG_SCORE      = "Health Score"
+    DIAG_FREE       = "free"
+    DIAG_USED       = "used"
+    DIAG_DISKS      = "disk(s)"
+    DIAG_DEVICES    = "device(s)"
+    DIAG_ENTRIES    = "entries"
+    DIAG_ERRORS     = "error(s)"
+    DIAG_NO_ERRORS  = "no errors"
+    DIAG_PROBLEMS   = "problematic"
+    DIAG_PENDING    = "pending"
+    DIAG_UP_TO_DATE = "up to date"
+    DIAG_UPDATE_ERR = "check failed"
 
     # Language
     LANG_SWITCHED   = "Language switched to English."

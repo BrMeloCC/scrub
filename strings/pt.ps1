@@ -135,16 +135,6 @@
     HIST_NO_DATA    = "Nenhum dado encontrado."
     HIST_NO_DATA2   = "Execute pelo menos uma rotina para gerar historico."
 
-    # Watch mode
-    WATCH_TITLE     = "Scrub Watch"
-    WATCH_STARTED   = "Watch mode iniciado. Atualizando a cada {0}s. Ctrl+C para sair."
-    WATCH_USED      = "usado"
-    WATCH_FREE_GB   = "GB livre"
-    WATCH_PENDING   = "PENDENTE"
-    WATCH_LAST      = "Ultima execucao:"
-    WATCH_UPDATE    = "Atualiza em {0}s"
-    WATCH_EXIT      = "para sair"
-
     # Startup manager
     START_TITLE     = "Gerenciar Startup"
     START_LOADING   = "Carregando entradas..."
@@ -200,6 +190,30 @@
     # Desinstalar
     UNINSTALL_CONFIRM = "Remover Scrub do PATH, Start Menu e modulo PS?"
     UNINSTALL_EXIT  = "Pressione Enter para sair"
+
+    # Painel de diagnostico
+    DIAG_TITLE      = "Diagnostico"
+    DIAG_DISK_SPACE = "Espaco em disco (C:)"
+    DIAG_DISK_HEALTH= "Saude do disco (SMART)"
+    DIAG_REBOOT     = "Reboot pendente"
+    DIAG_REBOOT_YES = "reboot necessario"
+    DIAG_REBOOT_NO  = "nao necessario"
+    DIAG_EVENT_LOG  = "Erros no Event Log (24h)"
+    DIAG_DRIVERS    = "Drivers"
+    DIAG_STARTUP    = "Entradas de startup"
+    DIAG_UPDATES    = "Windows Updates"
+    DIAG_SCORE      = "Health Score"
+    DIAG_FREE       = "livre"
+    DIAG_USED       = "usado"
+    DIAG_DISKS      = "disco(s)"
+    DIAG_DEVICES    = "dispositivo(s)"
+    DIAG_ENTRIES    = "entradas"
+    DIAG_ERRORS     = "erro(s)"
+    DIAG_NO_ERRORS  = "sem erros"
+    DIAG_PROBLEMS   = "problematico(s)"
+    DIAG_PENDING    = "pendente(s)"
+    DIAG_UP_TO_DATE = "em dia"
+    DIAG_UPDATE_ERR = "verificacao falhou"
 
     # Idioma
     LANG_SWITCHED   = "Idioma alterado para Portugues."
