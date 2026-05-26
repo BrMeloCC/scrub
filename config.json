@@ -24,16 +24,16 @@
                     "driver_audit":  true,
                     "large_file_finder":  true,
                     "startup_audit":  true,
-                    "duplicate_finder":  true,
+                    "duplicate_finder":  false,
                     "disk_optimize":  true,
                     "downloads_audit":  true,
                     "system_log_clean":  true,
                     "windows_update_check":  true,
                     "recycle_bin":  true,
                     "software_audit":  true,
-                    "windows_update_cache":  true,
+                    "windows_update_cache":  false,
                     "restore_point":  true,
-                    "system_repair":  true
+                    "system_repair":  false
                 },
     "browser_cache":  {
                           "chrome":  true,

@@ -1,9 +1,14 @@
+# Runtime / generated
 logs/
 reports/
 health_history.json
 run_history.json
+lang.txt
+presets.json
+
+# Release artifacts
+*.zip
+
+# Dev tooling (local only)
 .claude/
 features/
-lang.txt
-scrub-v*.zip
-presets.json
