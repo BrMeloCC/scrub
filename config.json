@@ -1,0 +1,157 @@
+﻿{
+    "dry_run":  true,
+    "log_dir":  "",
+    "report_dir":  "",
+    "min_age_days":  {
+                         "temp_files":  3,
+                         "recycle_bin":  30,
+                         "downloads_report":  60,
+                         "browser_cache":  7,
+                         "event_log_scan":  7,
+                         "software_audit":  30
+                     },
+    "size_threshold_mb":  100,
+    "large_file_report_limit":  50,
+    "modules":  {
+                    "disk_report":  true,
+                    "health_check":  true,
+                    "event_log_scan":  true,
+                    "hiberfil_cleaner":  false,
+                    "dev_project_clean":  false,
+                    "node_cache_clean":  true,
+                    "browser_cache":  true,
+                    "temp_cleaner":  true,
+                    "driver_audit":  true,
+                    "large_file_finder":  true,
+                    "startup_audit":  true,
+                    "duplicate_finder":  true,
+                    "disk_optimize":  true,
+                    "downloads_audit":  true,
+                    "system_log_clean":  true,
+                    "windows_update_check":  true,
+                    "recycle_bin":  true,
+                    "software_audit":  true,
+                    "windows_update_cache":  true,
+                    "restore_point":  true,
+                    "system_repair":  true
+                },
+    "browser_cache":  {
+                          "chrome":  true,
+                          "edge":  true,
+                          "firefox":  true
+                      },
+    "duplicate_finder":  {
+                             "scan_paths":  [
+
+                                            ],
+                             "min_size_kb":  100
+                         },
+    "dev_cleanup":  {
+                        "scan_paths":  [
+
+                                       ],
+                        "min_age_days":  30,
+                        "targets":  [
+                                        "node_modules",
+                                        ".venv",
+                                        "venv",
+                                        "__pycache__",
+                                        ".pytest_cache",
+                                        "target",
+                                        "bin",
+                                        "obj",
+                                        ".next",
+                                        ".nuxt",
+                                        ".svelte-kit",
+                                        "dist",
+                                        "build",
+                                        "out",
+                                        ".cache",
+                                        ".parcel-cache",
+                                        ".gradle",
+                                        ".m2"
+                                    ]
+                    },
+    "excluded_paths":  [
+
+                       ],
+    "alert_disk_usage_pct":  85,
+    "schedule":  {
+                     "temp_cleaner":  {
+                                          "freq_days":  1,
+                                          "est_secs":  10
+                                      },
+                     "recycle_bin":  {
+                                         "freq_days":  1,
+                                         "est_secs":  5
+                                     },
+                     "hiberfil_cleaner":  {
+                                              "freq_days":  30,
+                                              "est_secs":  2
+                                          },
+                     "restore_point":  {
+                                           "freq_days":  1,
+                                           "est_secs":  5
+                                       },
+                     "browser_cache":  {
+                                           "freq_days":  7,
+                                           "est_secs":  15
+                                       },
+                     "large_file_finder":  {
+                                               "freq_days":  7,
+                                               "est_secs":  30
+                                           },
+                     "downloads_audit":  {
+                                             "freq_days":  7,
+                                             "est_secs":  10
+                                         },
+                     "duplicate_finder":  {
+                                              "freq_days":  30,
+                                              "est_secs":  300
+                                          },
+                     "driver_audit":  {
+                                          "freq_days":  7,
+                                          "est_secs":  15
+                                      },
+                     "event_log_scan":  {
+                                            "freq_days":  1,
+                                            "est_secs":  10
+                                        },
+                     "startup_audit":  {
+                                           "freq_days":  7,
+                                           "est_secs":  5
+                                       },
+                     "system_log_clean":  {
+                                              "freq_days":  7,
+                                              "est_secs":  5
+                                          },
+                     "node_cache_clean":  {
+                                              "freq_days":  7,
+                                              "est_secs":  5
+                                          },
+                     "system_repair":  {
+                                           "freq_days":  30,
+                                           "est_secs":  1800
+                                       },
+                     "disk_optimize":  {
+                                           "freq_days":  7,
+                                           "est_secs":  30
+                                       },
+                     "windows_update_check":  {
+                                                  "freq_days":  1,
+                                                  "est_secs":  20
+                                              },
+                     "windows_update_cache":  {
+                                                  "freq_days":  30,
+                                                  "est_secs":  15
+                                              },
+                     "dev_project_clean":  {
+                                               "freq_days":  7,
+                                               "est_secs":  60
+                                           },
+                     "software_audit":  {
+                                            "freq_days":  7,
+                                            "est_secs":  5
+                                        }
+                 }
+}
