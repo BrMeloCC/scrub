@@ -1,4 +1,4 @@
-function Get-UserPresets {
+﻿function Get-UserPresets {
     $p = Join-Path $moduleRoot "presets.json"
     if (Test-Path $p) { return (Get-Content $p -Raw | ConvertFrom-Json) }
     return [PSCustomObject]@{}

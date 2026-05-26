@@ -226,4 +226,32 @@
     # Idioma
     LANG_SWITCHED   = "Idioma alterado para Portugues."
     LANG_NAME       = "Portugues"
+
+    # Selecao de navegadores
+    BROWSER_TITLE   = "Selecao de navegadores"
+    BROWSER_INST    = "(instalado)"
+    BROWSER_NA      = "(nao encontrado)"
+    BROWSER_HINT    = "Numero = alternar   ok = salvar   c = cancelar"
+
+    # Caminhos de scan do Dev Cleanup
+    DEV_PATHS_TITLE  = "Caminhos do Dev Cleanup"
+    DEV_PATHS_NONE   = "Nenhum caminho configurado."
+    DEV_PATHS_ADD    = "a = adicionar caminho"
+    DEV_PATHS_REMOVE = "Numero = remover"
+    DEV_PATHS_AGE    = "Idade minima (dias):"
+    DEV_PATHS_AGE_P  = "Nova idade minima em dias (Enter = manter)"
+    DEV_PATHS_PATH_P = "Caminho para escanear"
+
+    # Configuracao de limites
+    THR_TITLE        = "Limites de idade (dias)"
+    THR_DESC         = "(idade minima para arquivos serem considerados na limpeza)"
+    THR_NUM_EDIT     = "Numero = editar   ok = salvar   c = voltar"
+    THR_PROMPT       = "Novo valor em dias (Enter = manter)"
+    THR_EDITING      = "Editando:"
+    THR_CURRENT      = "Atual:"
+
+    PREVIEW_TITLE    = "Preview LIVE (dry-run)"
+    PREVIEW_NOTHING  = "Nada a deletar — nenhum modulo liberaria espaco."
+    PREVIEW_PROCEED  = "Prosseguir com delecao LIVE? [S/N]"
+    PREVIEW_RUNNING  = "Calculando preview..."
 }

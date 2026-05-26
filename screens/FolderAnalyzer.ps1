@@ -1,4 +1,4 @@
-function Show-FolderAnalyzer {
+﻿function Show-FolderAnalyzer {
     param([string]$StartPath = "")
 
     if (-not $StartPath) {

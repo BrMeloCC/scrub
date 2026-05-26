@@ -520,3 +520,31 @@ $($sections.ToString())
     $html | Set-Content -Path $ReportPath -Encoding UTF8
     Write-Host "  Report saved: $ReportPath" -ForegroundColor DarkGray
 }
+
+function Save-ScrubJson {
+    param([object] $Results, [string] $ReportDir, [bool] $DryRun, [string] $ModuleRoot)
+    try {
+        $timestamp = Get-Date -Format 'yyyy-MM-dd-HHmmss'
+        $version   = (Import-PowerShellDataFile (Join-Path $ModuleRoot 'scrub.psd1')).ModuleVersion
+        $out = [ordered]@{
+            timestamp = (Get-Date -Format "o")
+            dry_run   = $DryRun
+            version   = $version
+            modules   = [ordered]@{}
+        }
+        foreach ($key in $Results.Keys) {
+            $mod = $Results[$key]
+            $entry = [ordered]@{}
+            if ($mod.PSObject.Properties["BytesFreed"])   { $entry["BytesFreed"]   = $mod.BytesFreed }
+            if ($mod.PSObject.Properties["FilesDeleted"]) { $entry["FilesDeleted"] = $mod.FilesDeleted }
+            if ($mod.PSObject.Properties["Errors"])       { $entry["Errors"]       = @($mod.Errors) }
+            if ($mod.PSObject.Properties["Items"] -and $null -ne $mod.Items) {
+                $entry["ItemsCount"] = $mod.Items.Count
+                if ($mod.Items.Count -le 20) { $entry["Items"] = $mod.Items }
+            }
+            $out.modules[$key] = $entry
+        }
+        $jsonPath = Join-Path $ReportDir "scrub-$timestamp.json"
+        $out | ConvertTo-Json -Depth 5 | Set-Content $jsonPath -Encoding UTF8
+    } catch {}
+}

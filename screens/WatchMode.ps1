@@ -1,4 +1,4 @@
-function Show-WatchMode {
+﻿function Show-WatchMode {
     param([int]$IntervalSecs = 30)
     Write-Host ""
     Write-Host "  $($script:ScrubStr.WATCH_STARTED -f $IntervalSecs)" -ForegroundColor DarkGray

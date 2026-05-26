@@ -40,6 +40,19 @@ function Import-ScrubConfig {
     return $defaults
 }
 
+function Remove-OldReports {
+    param([string] $ReportDir, [int] $RetentionDays, [string] $LogPath = "")
+    if (-not (Test-Path $ReportDir)) { return }
+    $cutoff = (Get-Date).AddDays(-$RetentionDays)
+    $all    = @(Get-ChildItem $ReportDir -File -ErrorAction SilentlyContinue)
+    if ($all.Count -le 1) { return }
+    $newest = $all | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+    $old    = @($all | Where-Object { $_.LastWriteTime -lt $cutoff -and $_.FullName -ne $newest.FullName })
+    if ($old.Count -eq 0) { return }
+    $old | Remove-Item -Force -ErrorAction SilentlyContinue
+    Write-ScrubLog -LogPath $LogPath -Entry @{ module = "ReportCleanup"; FilesRemoved = $old.Count }
+}
+
 # -- Public API ----------------------------------------------------------------
 
 <#
@@ -385,6 +398,9 @@ function Invoke-Scrub {
     if (-not $NoReport) {
         $reportPath = Join-Path $repDir "report_$(Get-Date -Format 'yyyyMMdd_HHmmss').html"
         Write-ScrubHtmlReport -Results $results -ReportPath $reportPath -DryRun $DryRun
+        Save-ScrubJson -Results $results -ReportDir $repDir -DryRun $DryRun -ModuleRoot $MODULE_ROOT
+        $retentionDays = if ($null -ne $cfg.report_retention_days) { [int]$cfg.report_retention_days } else { 30 }
+        Remove-OldReports -ReportDir $repDir -RetentionDays $retentionDays -LogPath $logPath
     }
 
     Write-Host ""

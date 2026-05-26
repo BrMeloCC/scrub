@@ -1,4 +1,4 @@
-function Show-Menu {
+﻿function Show-Menu {
     while ($true) {
         Write-ScrubHeader
         $cached      = Get-CachedHealthScore
@@ -69,17 +69,11 @@ function Show-Menu {
             }
 
             "3" {
-                Write-ScrubHeader
-                $c = Read-Host "  $($script:ScrubStr.CONFIRM_LIVE -f $script:ScrubStr.CONFIRM_WORD)"
-                if ($c -ne $script:ScrubStr.CONFIRM_WORD) {
-                    Write-Host "  $($script:ScrubStr.CANCELED)" -ForegroundColor Yellow
-                    Start-Sleep -Seconds 1
-                    continue
-                }
-                Write-ScrubHeader
                 $at = Get-ActiveToggles
                 $ac = Get-AdminConflicts -Toggles $at
                 if ($ac) { Show-AdminPrompt -Conflicts $ac }
+                if (-not (Show-LivePreview -Toggles $at)) { Write-Host "  $($script:ScrubStr.ABORTED)" -ForegroundColor Yellow; break }
+                Write-ScrubHeader
                 $res = Invoke-ScrubCustom -Toggles $at -DryRun $false
                 $hist = Get-ScrubHistory
                 Save-ScrubHistory -History $hist -Keys ($at.Keys | Where-Object { $at[$_] })

@@ -1,4 +1,4 @@
-function Invoke-WindowsUpdateCacheClean {
+﻿function Invoke-WindowsUpdateCacheClean {
     param(
         [bool]   $DryRun  = $true,
         [string] $LogPath = ""

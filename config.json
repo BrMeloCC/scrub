@@ -75,6 +75,7 @@
     "excluded_paths":  [
 
                        ],
+    "report_retention_days":  30,
     "alert_disk_usage_pct":  85,
     "schedule":  {
                      "temp_cleaner":  {

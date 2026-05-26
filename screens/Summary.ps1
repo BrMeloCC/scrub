@@ -1,4 +1,4 @@
-function Show-RunSummary {
+﻿function Show-RunSummary {
     param([object] $Results, [bool] $DryRun)
     if (-not $Results) { return }
 

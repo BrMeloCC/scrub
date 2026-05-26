@@ -1,4 +1,4 @@
-function Show-StartupManager {
+﻿function Show-StartupManager {
     while ($true) {
         Write-ScrubHeader
         Write-Host "  $($script:ScrubStr.START_TITLE)" -ForegroundColor White

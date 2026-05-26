@@ -1,4 +1,4 @@
-function Show-History {
+﻿function Show-History {
     $logDir  = Join-Path $moduleRoot "logs"
     $hsPath  = Join-Path $moduleRoot "health_history.json"
 

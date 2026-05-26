@@ -1,3 +1,127 @@
+﻿function Show-BrowserConfig {
+    param([string] $CfgPath, [PSCustomObject] $Cfg)
+    $browsers = [ordered]@{
+        chrome  = [bool]$Cfg.browser_cache.chrome
+        edge    = [bool]$Cfg.browser_cache.edge
+        firefox = [bool]$Cfg.browser_cache.firefox
+    }
+    $installed = @{
+        chrome  = Test-Path "$env:LOCALAPPDATA\Google\Chrome\User Data\Default"
+        edge    = Test-Path "$env:LOCALAPPDATA\Microsoft\Edge\User Data\Default"
+        firefox = Test-Path "$env:LOCALAPPDATA\Mozilla\Firefox\Profiles"
+    }
+    $labels = [ordered]@{ chrome = "Chrome"; edge = "Edge"; firefox = "Firefox" }
+    $keys   = @("chrome", "edge", "firefox")
+
+    while ($true) {
+        Write-ScrubHeader
+        Write-Host "  $($script:ScrubStr.BROWSER_TITLE)" -ForegroundColor White
+        Write-Host ""
+        for ($i = 0; $i -lt $keys.Count; $i++) {
+            $k    = $keys[$i]
+            $on   = $browsers[$k]
+            $box  = if ($on) { "[X]" } else { "[ ]" }
+            $col  = if ($on) { "Green" } else { "DarkGray" }
+            $inst = if ($installed[$k]) { $script:ScrubStr.BROWSER_INST } else { $script:ScrubStr.BROWSER_NA }
+            $instCol = if ($installed[$k]) { "DarkGray" } else { "DarkGray" }
+            Write-Host ("  " + "$($i + 1)  ") -NoNewline
+            Write-Host $box -ForegroundColor $col -NoNewline
+            Write-Host ("  " + $labels[$k].PadRight(10)) -ForegroundColor White -NoNewline
+            Write-Host $inst -ForegroundColor $instCol
+        }
+        Write-Host ""
+        Write-Host ("  " + ("-" * 40)) -ForegroundColor DarkGray
+        Write-Host "  $($script:ScrubStr.BROWSER_HINT)" -ForegroundColor DarkGray
+        Write-Host ""
+        $raw = (Read-Host "  >").Trim().ToLower()
+        if ($raw -eq "ok") {
+            $Cfg.browser_cache | Add-Member -MemberType NoteProperty -Name "chrome"  -Value $browsers["chrome"]  -Force
+            $Cfg.browser_cache | Add-Member -MemberType NoteProperty -Name "edge"    -Value $browsers["edge"]    -Force
+            $Cfg.browser_cache | Add-Member -MemberType NoteProperty -Name "firefox" -Value $browsers["firefox"] -Force
+            $Cfg | ConvertTo-Json -Depth 10 | Set-Content $CfgPath -Encoding UTF8
+            return
+        }
+        if ($raw -eq "c") { return }
+        $n = 0
+        if ([int]::TryParse($raw, [ref]$n) -and $n -ge 1 -and $n -le $keys.Count) {
+            $k = $keys[$n - 1]
+            $browsers[$k] = -not $browsers[$k]
+        }
+    }
+}
+
+function Show-DevScanPaths {
+    param([string] $CfgPath, [PSCustomObject] $Cfg)
+    if (-not $Cfg.dev_cleanup) {
+        $Cfg | Add-Member -MemberType NoteProperty -Name "dev_cleanup" -Value ([PSCustomObject]@{ scan_paths = @(); min_age_days = 30 }) -Force
+    }
+    $paths  = [System.Collections.Generic.List[string]]::new()
+    $srcPaths = @($Cfg.dev_cleanup.scan_paths)
+    foreach ($p in $srcPaths) { if ($p) { $paths.Add($p) } }
+    $minAge = if ($Cfg.dev_cleanup.min_age_days) { [int]$Cfg.dev_cleanup.min_age_days } else { 30 }
+
+    while ($true) {
+        Write-ScrubHeader
+        Write-Host "  $($script:ScrubStr.DEV_PATHS_TITLE)" -ForegroundColor White
+        Write-Host ""
+        if ($paths.Count -eq 0) {
+            Write-Host "  $($script:ScrubStr.DEV_PATHS_NONE)" -ForegroundColor DarkGray
+        } else {
+            for ($i = 0; $i -lt $paths.Count; $i++) {
+                Write-Host ("  " + "$($i + 1)".PadLeft(2) + "  ") -NoNewline
+                Write-Host $paths[$i] -ForegroundColor White
+            }
+        }
+        Write-Host ""
+        Write-Host ("  " + ("-" * 52)) -ForegroundColor DarkGray
+        Write-Host "  $($script:ScrubStr.DEV_PATHS_AGE) " -NoNewline
+        Write-Host $minAge -ForegroundColor Cyan -NoNewline
+        Write-Host "  (e = edit)"
+        Write-Host "  $($script:ScrubStr.DEV_PATHS_ADD)   " -NoNewline
+        Write-Host "$($script:ScrubStr.DEV_PATHS_REMOVE)   " -NoNewline
+        Write-Host "ok" -ForegroundColor Cyan -NoNewline
+        Write-Host " = $($script:ScrubStr.SAVE)   " -NoNewline
+        Write-Host "c" -ForegroundColor Yellow -NoNewline
+        Write-Host " = $($script:ScrubStr.BACK)"
+        Write-Host ""
+
+        $raw = (Read-Host "  >").Trim().ToLower()
+
+        if ($raw -eq "ok") {
+            $Cfg.dev_cleanup | Add-Member -MemberType NoteProperty -Name "scan_paths"   -Value @($paths) -Force
+            $Cfg.dev_cleanup | Add-Member -MemberType NoteProperty -Name "min_age_days" -Value $minAge   -Force
+            $Cfg | ConvertTo-Json -Depth 10 | Set-Content $CfgPath -Encoding UTF8
+            Write-Host "  $($script:ScrubStr.SAVED)" -ForegroundColor Green
+            Start-Sleep -Milliseconds 700
+            return
+        }
+        if ($raw -eq "c") { return }
+        if ($raw -eq "a") {
+            $newPath = (Read-Host "  $($script:ScrubStr.DEV_PATHS_PATH_P)").Trim()
+            if ($newPath -and (Test-Path $newPath)) {
+                $paths.Add($newPath)
+            } elseif ($newPath) {
+                Write-Host "  $($script:ScrubStr.NOT_FOUND)" -ForegroundColor Yellow
+                Start-Sleep -Milliseconds 700
+            }
+            continue
+        }
+        if ($raw -eq "e") {
+            $ageRaw = (Read-Host "  $($script:ScrubStr.DEV_PATHS_AGE_P)").Trim()
+            $ageVal = 0
+            if ($ageRaw -ne "" -and [int]::TryParse($ageRaw, [ref]$ageVal) -and $ageVal -ge 1) { $minAge = $ageVal }
+            continue
+        }
+        $n = 0
+        if ([int]::TryParse($raw, [ref]$n) -and $n -ge 1 -and $n -le $paths.Count) {
+            $target = $paths[$n - 1]
+            Write-Host "  $($script:ScrubStr.SPEC_CANCEL)? (s/N) " -NoNewline
+            $conf = (Read-Host "  '$target'").Trim().ToLower()
+            if ($conf -eq "s" -or $conf -eq "y") { $paths.RemoveAt($n - 1) }
+        }
+    }
+}
+
 function Show-ModuleConfig {
     $cfgPath = if ($ConfigPath -and (Test-Path $ConfigPath)) { $ConfigPath } else { Join-Path $moduleRoot "config.json" }
     $cfg     = ConvertFrom-Json -InputObject (Get-Content $cfgPath -Raw)
@@ -75,6 +199,12 @@ function Show-ModuleConfig {
         Write-Host " = $($script:ScrubStr.MOD_RUN_NOW)   " -NoNewline
         Write-Host "f" -ForegroundColor Cyan -NoNewline
         Write-Host " = $($script:ScrubStr.CFG_F_FREQ)   " -NoNewline
+        Write-Host "b" -ForegroundColor Cyan -NoNewline
+        Write-Host " = $($script:ScrubStr.BROWSER_TITLE)   " -NoNewline
+        Write-Host "v" -ForegroundColor Cyan -NoNewline
+        Write-Host " = $($script:ScrubStr.DEV_PATHS_TITLE)   " -NoNewline
+        Write-Host "t" -ForegroundColor Cyan -NoNewline
+        Write-Host " = $($script:ScrubStr.THR_TITLE)   " -NoNewline
         Write-Host "c" -ForegroundColor Yellow -NoNewline
         Write-Host " = $($script:ScrubStr.BACK)   " -NoNewline
         Write-Host "[!]" -ForegroundColor Yellow -NoNewline
@@ -128,6 +258,12 @@ function Show-ModuleConfig {
         if ($raw -eq "p")  { Show-PresetManager -CurrentToggles $toggles; continue }
 
         if ($raw -eq "f") { Show-FreqConfig; continue }
+
+        if ($raw -eq "b") { Show-BrowserConfig -CfgPath $cfgPath -Cfg $cfg; continue }
+
+        if ($raw -eq "v") { Show-DevScanPaths -CfgPath $cfgPath -Cfg $cfg; continue }
+
+        if ($raw -eq "t") { Show-ThresholdsConfig; continue }
 
         if ($raw -eq "c") {
             if ($dirty) {

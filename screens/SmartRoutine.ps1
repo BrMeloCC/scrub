@@ -1,4 +1,4 @@
-function Show-SmartRoutine {
+﻿function Show-SmartRoutine {
     $cfg      = Read-ScrubConfig
     $toggles  = Get-ActiveToggles
     $history  = Get-ScrubHistory
@@ -126,9 +126,14 @@ function Show-SmartRoutine {
         if ($raw -ne "E" -and $raw -ne "L") { continue }
 
         $dryRun = ($raw -ne "L")
+        $runToggles = if ($forceAll) { $toggles } else {
+            $t = @{}
+            foreach ($m in $script:CATALOG) { $t[$m.Key] = $false }
+            foreach ($e in $due)             { $t[$e.Module.Key] = $true }
+            $t
+        }
         if (-not $dryRun) {
-            $c = Read-Host "  $($script:ScrubStr.CONFIRM_LIVE -f $script:ScrubStr.CONFIRM_WORD)"
-            if ($c -ne $script:ScrubStr.CONFIRM_WORD) {
+            if (-not (Show-LivePreview -Toggles $runToggles)) {
                 Write-Host "  $($script:ScrubStr.CANCELED)" -ForegroundColor Yellow
                 Start-Sleep -Seconds 1
                 continue
@@ -136,12 +141,6 @@ function Show-SmartRoutine {
         }
 
         Write-ScrubHeader
-        $runToggles = if ($forceAll) { $toggles } else {
-            $t = @{}
-            foreach ($m in $script:CATALOG) { $t[$m.Key] = $false }
-            foreach ($e in $due)             { $t[$e.Module.Key] = $true }
-            $t
-        }
         $ac = Get-AdminConflicts -Toggles $runToggles
         if ($ac) { Show-AdminPrompt -Conflicts $ac }
 

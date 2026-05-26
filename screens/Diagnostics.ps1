@@ -1,4 +1,4 @@
-function Show-DiagnosticsSummary {
+﻿function Show-DiagnosticsSummary {
     param([object] $Results)
     if (-not $Results) { return }
 

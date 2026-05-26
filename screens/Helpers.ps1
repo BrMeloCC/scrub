@@ -1,4 +1,4 @@
-function Set-ScrubLanguage {
+﻿function Set-ScrubLanguage {
     param([string]$Lang)
     $langFile = Join-Path $moduleRoot "strings\$Lang.ps1"
     if (Test-Path $langFile) {
@@ -193,6 +193,39 @@ function Format-SizeBar {
     $filled = [int][math]::Round($Width * $Bytes / $Total)
     $filled = [math]::Max(0, [math]::Min($Width, $filled))
     return ([string][char]9608 * $filled) + ([string][char]9617 * ($Width - $filled))
+}
+
+function Show-LivePreview {
+    param([hashtable] $Toggles, [string] $ConfigPath = "")
+    Write-Host ""
+    Write-Host "  $($script:ScrubStr.PREVIEW_RUNNING)" -ForegroundColor DarkGray
+    $res = Invoke-ScrubCustom -Toggles $Toggles -DryRun $true
+    Write-ScrubHeader
+    Write-Host "  $($script:ScrubStr.PREVIEW_TITLE)" -ForegroundColor White
+    Write-Host ""
+
+    $anySpace = $false
+    foreach ($key in $res.Keys) {
+        $mod = $res[$key]
+        $bytes = 0L
+        if ($mod.PSObject.Properties["BytesFreed"]   -and $null -ne $mod.BytesFreed)   { $bytes = [long]$mod.BytesFreed }
+        if ($mod.PSObject.Properties["FilesDeleted"] -and $null -ne $mod.FilesDeleted -and $mod.FilesDeleted -gt 0) { $bytes = [long]$mod.FilesDeleted * 1024L }
+        if ($bytes -le 0) { continue }
+        $anySpace = $true
+        $label = $key.PadRight(22)
+        $count = if ($mod.PSObject.Properties["FilesFound"] -and $mod.FilesFound -gt 0) { "$($mod.FilesFound) files  " } else { "" }
+        Write-Host ("  " + $label) -ForegroundColor White -NoNewline
+        Write-Host "$count$(ConvertTo-ScrubBytes $bytes)" -ForegroundColor Cyan
+    }
+
+    Write-Host ""
+    if (-not $anySpace) {
+        Write-Host "  $($script:ScrubStr.PREVIEW_NOTHING)" -ForegroundColor DarkGray
+        Write-Host ""
+    }
+    Write-Host ("  " + ("-" * 52)) -ForegroundColor DarkGray
+    $ans = (Read-Host "  $($script:ScrubStr.PREVIEW_PROCEED)").Trim().ToUpper()
+    return ($ans -eq "Y" -or $ans -eq "S")
 }
 
 function Invoke-DrivePickerMenu {

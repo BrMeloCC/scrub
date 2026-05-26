@@ -226,4 +226,32 @@
     # Language
     LANG_SWITCHED   = "Language switched to English."
     LANG_NAME       = "English"
+
+    # Browser selection
+    BROWSER_TITLE   = "Browser selection"
+    BROWSER_INST    = "(installed)"
+    BROWSER_NA      = "(not found)"
+    BROWSER_HINT    = "Number = toggle   ok = save   c = cancel"
+
+    # Dev scan paths
+    DEV_PATHS_TITLE  = "Dev Cleanup paths"
+    DEV_PATHS_NONE   = "No scan paths configured."
+    DEV_PATHS_ADD    = "a = add path"
+    DEV_PATHS_REMOVE = "Number = remove"
+    DEV_PATHS_AGE    = "Min age (days):"
+    DEV_PATHS_AGE_P  = "New min age in days (Enter = keep)"
+    DEV_PATHS_PATH_P = "Path to scan"
+
+    # Thresholds config
+    THR_TITLE        = "Age thresholds (days)"
+    THR_DESC         = "(minimum age before files are considered for cleanup)"
+    THR_NUM_EDIT     = "Number = edit   ok = save   c = back"
+    THR_PROMPT       = "New value in days (Enter = keep)"
+    THR_EDITING      = "Editing:"
+    THR_CURRENT      = "Current:"
+
+    PREVIEW_TITLE    = "Live preview (dry-run)"
+    PREVIEW_NOTHING  = "Nothing to delete — no modules would free space."
+    PREVIEW_PROCEED  = "Proceed with LIVE deletion? [Y/N]"
+    PREVIEW_RUNNING  = "Running preview..."
 }

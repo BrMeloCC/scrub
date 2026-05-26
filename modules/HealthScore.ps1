@@ -1,4 +1,4 @@
-function Get-HealthScore {
+﻿function Get-HealthScore {
     param(
         [PSCustomObject] $DiskReport  = $null,
         [PSCustomObject] $DiskHealth  = $null,
