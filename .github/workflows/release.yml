@@ -1,0 +1,52 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create release zip
+        shell: pwsh
+        run: |
+          $version = $env:GITHUB_REF_NAME
+          $dest    = "scrub-$version.zip"
+          $tmp     = Join-Path $env:TEMP "scrub-release"
+
+          if (Test-Path $tmp) { Remove-Item $tmp -Recurse -Force }
+          New-Item -ItemType Directory $tmp | Out-Null
+
+          $files = @(
+            'Run-Scrub.ps1','Install-Scrub.ps1','setup.cmd','scrub.psm1',
+            'scrub.psd1','scrub.cmd','config.json','README.md','README.pt.md'
+          )
+          if (Test-Path 'LICENSE') { $files += 'LICENSE' }
+          foreach ($f in $files) {
+            if (Test-Path $f) { Copy-Item $f (Join-Path $tmp $f) }
+          }
+
+          foreach ($dir in @('strings', 'modules', 'screens')) {
+            if (Test-Path $dir) {
+              New-Item -ItemType Directory (Join-Path $tmp $dir) | Out-Null
+              Get-ChildItem $dir -File | Copy-Item -Destination (Join-Path $tmp $dir)
+            }
+          }
+
+          Compress-Archive -Path (Join-Path $tmp '*') -DestinationPath $dest
+          Remove-Item $tmp -Recurse -Force
+          Write-Host "Created $dest ($([math]::Round((Get-Item $dest).Length/1KB,1)) KB)"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: scrub-*.zip
+          generate_release_notes: true

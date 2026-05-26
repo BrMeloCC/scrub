@@ -191,6 +191,13 @@
     UNINSTALL_CONFIRM = "Remove Scrub from PATH, Start Menu and PS module?"
     UNINSTALL_EXIT  = "Press Enter to exit"
 
+    # Admin elevation
+    ADMIN_WARN      = "Requires admin"
+    ADMIN_MODULES   = "Module(s) that need admin"
+    ADMIN_RELAUNCH  = "Re-launch as Administrator"
+    ADMIN_CONTINUE  = "Continue without (modules will be skipped)"
+    ADMIN_NEEDS     = "needs admin"
+
     # Diagnostics panel
     DIAG_TITLE      = "Diagnostics"
     DIAG_DISK_SPACE = "Disk space (C:)"
@@ -203,6 +210,7 @@
     DIAG_STARTUP    = "Startup entries"
     DIAG_UPDATES    = "Windows Updates"
     DIAG_SCORE      = "Health Score"
+    DIAG_PTS        = "pts"
     DIAG_FREE       = "free"
     DIAG_USED       = "used"
     DIAG_DISKS      = "disk(s)"

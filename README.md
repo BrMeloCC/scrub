@@ -68,14 +68,14 @@ To uninstall: `setup.cmd -Uninstall`
 ## Menu
 
 ```
-  Score: 82  ↑   Preset: Custom   P = switch
+  Score: 82 ↑   Preset: Custom   P = switch
 
   [1]  Smart routine          runs only what is needed, estimates time
   [2]  Full routine           dry-run — analyzes, deletes nothing
   [3]  Full routine LIVE      actually deletes (asks for confirmation)
   [4]  Specific routine       choose which modules to run
 
-  [5]  Diagnose               disk, health, logs and startup (read-only)
+  [5]  Diagnose               health-focused scan — disk, SMART, logs, drivers (read-only)
   [6]  Manage startup         enable/disable startup entries
   [7]  Folder analyzer        interactive disk usage explorer
   [8]  History                progress charts and score over time
@@ -86,6 +86,19 @@ To uninstall: `setup.cmd -Uninstall`
   [I]  Idioma / Language      switch between Portuguese and English
   [0]  Exit
 ```
+
+### Preset manager
+
+Press `P` from the main menu to cycle through presets: **Custom**, **Diagnostics**, and **Cleanup**. Each preset activates a predefined set of modules.
+
+From **Configure modules [9]**, press `p` to open the preset manager where you can:
+
+- Save the current module selection as a named preset
+- Load or delete previously saved user presets
+
+### Diagnose [5]
+
+Runs a read-only health scan in roughly 30 seconds. Only health-focused modules execute: disk space, SMART status, event log errors, driver issues, startup entries, and pending updates. Results appear as a color-coded panel showing `XX/YY pts` per dimension — nothing is modified.
 
 ### Health Score
 
@@ -109,7 +122,15 @@ The **Specific routine [4]** and **Configure modules [9]** menus share a common 
 - `a` marks all modules, `n` unmarks all
 - Estimated total run time updates in real time as you select
 
-**Configure modules [9]** additionally shows the last run time for each module and marks unsaved changes with `*`. Press `r` to save and run immediately without going back to the main menu.
+**Configure modules [9]** additionally shows the last run timestamp for each module and marks unsaved changes with `*`. Extra keys available here:
+
+- `r` — save and run immediately without returning to the main menu
+- `d` — discard unsaved changes
+- `p` — open the preset manager
+
+### Post-run summary
+
+After every routine a summary table is shown with freed space (live mode) or would-free space (dry-run) per module, plus a total at the bottom.
 
 ---
 
@@ -215,14 +236,15 @@ Edit `config.json` to customize behavior:
 scrub/
 ├── Run-Scrub.ps1          # Entry point / interactive menu
 ├── Install-Scrub.ps1      # User-level installer / uninstaller
-├── setup.cmd              # One-click installer (double-click to install)
+├── setup.cmd              # One-click installer
 ├── scrub.psm1             # Main module / orchestrator
 ├── scrub.psd1             # Module manifest
-├── scrub.cmd              # Terminal launcher (works from any folder)
+├── scrub.cmd              # Terminal launcher
 ├── config.json            # Default configuration
 ├── strings/
 │   ├── en.ps1             # English UI strings
 │   └── pt.ps1             # Portuguese UI strings
+├── screens/               # UI screen files (12 files)
 └── modules/               # 22 independent PS1 modules
 ```
 

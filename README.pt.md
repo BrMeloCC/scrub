@@ -68,14 +68,14 @@ Para desinstalar: `setup.cmd -Uninstall`
 ## Menu
 
 ```
-  Score: 82  ↑   Preset: Customizado   P = alternar
+  Score: 82 ↑   Preset: Customizado   P = alternar
 
   [1]  Rotina inteligente     roda só o que é necessário, estima o tempo
   [2]  Rotina completa        dry-run — analisa, não deleta nada
   [3]  Rotina completa LIVE   deleta de verdade (pede confirmação)
   [4]  Rotina específica      escolha quais módulos rodar
 
-  [5]  Diagnosticar           disco, saúde, logs e inicialização (só leitura)
+  [5]  Diagnosticar           scan de saúde — disco, SMART, logs, drivers (só leitura)
   [6]  Gerenciar startup      ativar/desativar entradas de inicialização
   [7]  Analisar pasta         explorador de uso de disco interativo
   [8]  Histórico              gráficos de progresso e score ao longo do tempo
@@ -86,6 +86,19 @@ Para desinstalar: `setup.cmd -Uninstall`
   [I]  Idioma / Language      alternar entre português e inglês
   [0]  Sair
 ```
+
+### Gerenciador de presets
+
+Pressione `P` no menu principal para alternar entre os presets: **Customizado**, **Diagnóstico** e **Limpeza**. Cada preset ativa um conjunto predefinido de módulos.
+
+Em **Configurar módulos [9]**, pressione `p` para abrir o gerenciador de presets, onde você pode:
+
+- Salvar a seleção atual de módulos como um preset com nome
+- Carregar ou excluir presets de usuário salvos anteriormente
+
+### Diagnosticar [5]
+
+Executa um scan de saúde somente leitura em cerca de 30 segundos. Apenas os módulos voltados para saúde são executados: espaço em disco, SMART, erros no event log, problemas em drivers, entradas de inicialização e updates pendentes. Os resultados aparecem em um painel com código de cores mostrando `XX/YY pts` por dimensão — nada é modificado.
 
 ### Health Score
 
@@ -109,7 +122,15 @@ Os menus **Rotina específica [4]** e **Configurar módulos [9]** compartilham u
 - `a` marca todos os módulos, `n` desmarca todos
 - O tempo estimado total é atualizado em tempo real conforme você seleciona
 
-**Configurar módulos [9]** também exibe a data da última execução de cada módulo e marca alterações não salvas com `*`. Pressione `r` para salvar e executar na hora sem voltar ao menu principal.
+**Configurar módulos [9]** também exibe o timestamp da última execução de cada módulo e marca alterações não salvas com `*`. Teclas adicionais disponíveis aqui:
+
+- `r` — salva e executa imediatamente sem voltar ao menu principal
+- `d` — descarta as alterações não salvas
+- `p` — abre o gerenciador de presets
+
+### Resumo pós-execução
+
+Após cada rotina é exibida uma tabela de resumo com o espaço liberado (modo live) ou que seria liberado (dry-run) por módulo, mais um total ao final.
 
 ---
 
@@ -215,14 +236,15 @@ Edite `config.json` para personalizar:
 scrub/
 ├── Run-Scrub.ps1          # Ponto de entrada / menu interativo
 ├── Install-Scrub.ps1      # Instalador/desinstalador de usuário
-├── setup.cmd              # Instalador com um clique (clique duplo para instalar)
+├── setup.cmd              # Instalador com um clique
 ├── scrub.psm1             # Módulo principal / orquestrador
 ├── scrub.psd1             # Manifesto do módulo
-├── scrub.cmd              # Launcher do terminal (funciona em qualquer pasta)
+├── scrub.cmd              # Launcher do terminal
 ├── config.json            # Configuração padrão
 ├── strings/
 │   ├── en.ps1             # Strings em inglês
 │   └── pt.ps1             # Strings em português
+├── screens/               # Arquivos de tela da UI (12 arquivos)
 └── modules/               # 22 módulos PS1 independentes
 ```
 
