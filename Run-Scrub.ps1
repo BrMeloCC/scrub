@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
     Entry point para o Scrub. Sem flags exibe um menu interativo.
@@ -24,34 +24,34 @@ Import-Module (Join-Path $moduleRoot "scrub.psd1") -Force
 
 # ── Idioma ────────────────────────────────────────────────────────────────────
 
-$script:FaxLangFile = Join-Path $moduleRoot "lang.txt"
-$script:FaxLang = if (Test-Path $script:FaxLangFile) { (Get-Content $script:FaxLangFile -Raw).Trim() } else { "pt" }
-. (Join-Path $moduleRoot "strings\$script:FaxLang.ps1")
+$script:ScrubLangFile = Join-Path $moduleRoot "lang.txt"
+$script:ScrubLang = if (Test-Path $script:ScrubLangFile) { (Get-Content $script:ScrubLangFile -Raw).Trim() } else { "pt" }
+. (Join-Path $moduleRoot "strings\$script:ScrubLang.ps1")
 
-function Set-FaxLanguage {
+function Set-ScrubLanguage {
     param([string]$Lang)
     $langFile = Join-Path $moduleRoot "strings\$Lang.ps1"
     if (Test-Path $langFile) {
-        $script:FaxLang = $Lang
+        $script:ScrubLang = $Lang
         . $langFile
-        Set-Content $script:FaxLangFile -Value $Lang -Encoding UTF8
-        Write-Host "  $($script:FaxStr.LANG_SWITCHED)" -ForegroundColor Green
+        Set-Content $script:ScrubLangFile -Value $Lang -Encoding UTF8
+        Write-Host "  $($script:ScrubStr.LANG_SWITCHED)" -ForegroundColor Green
         Start-Sleep -Milliseconds 700
     }
 }
 
-function Switch-FaxLanguage {
-    $next = if ($script:FaxLang -eq "pt") { "en" } else { "pt" }
-    Set-FaxLanguage -Lang $next
+function Switch-ScrubLanguage {
+    $next = if ($script:ScrubLang -eq "pt") { "en" } else { "pt" }
+    Set-ScrubLanguage -Lang $next
 }
 
 # ── Utilitarios ───────────────────────────────────────────────────────────────
 
-function Write-FaxHeader {
+function Write-ScrubHeader {
     Clear-Host
     Write-Host ""
-    Write-Host "  $($script:FaxStr.APP_NAME)" -ForegroundColor Cyan -NoNewline
-    Write-Host "  --  $($script:FaxStr.APP_TAGLINE)" -ForegroundColor DarkGray
+    Write-Host "  $($script:ScrubStr.APP_NAME)" -ForegroundColor Cyan -NoNewline
+    Write-Host "  --  $($script:ScrubStr.APP_TAGLINE)" -ForegroundColor DarkGray
     Write-Host ("  " + ("-" * 52)) -ForegroundColor DarkGray
     Write-Host ""
 }
@@ -63,7 +63,7 @@ function Open-LatestReport {
     if ($f) { Start-Process $f.FullName }
 }
 
-function Read-FaxConfig {
+function Read-ScrubConfig {
     $path = if ($ConfigPath -and (Test-Path $ConfigPath)) { $ConfigPath } else { Join-Path $moduleRoot "config.json" }
     return (ConvertFrom-Json -InputObject (Get-Content $path -Raw))
 }
@@ -75,13 +75,13 @@ function Format-EstSecs {
     return "~$([math]::Round($Secs / 3600, 1))h"
 }
 
-function Get-FaxHistory {
+function Get-ScrubHistory {
     $p = Join-Path $moduleRoot "run_history.json"
     if (Test-Path $p) { return (Get-Content $p -Raw | ConvertFrom-Json) }
     return [PSCustomObject]@{ last_runs = [PSCustomObject]@{} }
 }
 
-function Save-FaxHistory {
+function Save-ScrubHistory {
     param([PSCustomObject] $History, [string[]] $Keys)
     $now = (Get-Date -Format "o")
     foreach ($k in $Keys) {
@@ -101,10 +101,10 @@ function Get-EffectiveSchedule {
 function Get-FreqLabel {
     param([int] $Days)
     switch ($Days) {
-        1   { return $script:FaxStr.FREQ_DAILY }
-        7   { return $script:FaxStr.FREQ_WEEKLY }
-        30  { return $script:FaxStr.FREQ_MONTHLY }
-        180 { return $script:FaxStr.FREQ_BIANNUAL }
+        1   { return $script:ScrubStr.FREQ_DAILY }
+        7   { return $script:ScrubStr.FREQ_WEEKLY }
+        30  { return $script:ScrubStr.FREQ_MONTHLY }
+        180 { return $script:ScrubStr.FREQ_BIANNUAL }
         default { return "${Days}d" }
     }
 }
@@ -163,7 +163,7 @@ $script:PRESETS = [ordered]@{
 
 function Get-ActiveToggles {
     if ($script:ActivePreset -eq "customizado") {
-        $cfg = Read-FaxConfig
+        $cfg = Read-ScrubConfig
         $t = @{}
         foreach ($m in $script:CATALOG) {
             $v = $cfg.modules.($m.Key)
@@ -184,9 +184,9 @@ function Step-ActivePreset {
 
 # ── Run com selecao de modulos ─────────────────────────────────────────────────
 
-function Invoke-FaxCustom {
+function Invoke-ScrubCustom {
     param([hashtable] $Toggles, [bool] $DryRun)
-    $cfg = Read-FaxConfig
+    $cfg = Read-ScrubConfig
     foreach ($key in $Toggles.Keys) {
         $cfg.modules | Add-Member -MemberType NoteProperty -Name $key -Value $Toggles[$key] -Force
     }
@@ -199,9 +199,9 @@ function Invoke-FaxCustom {
 # ── Rotina inteligente ────────────────────────────────────────────────────────
 
 function Show-SmartRoutine {
-    $cfg      = Read-FaxConfig
+    $cfg      = Read-ScrubConfig
     $toggles  = Get-ActiveToggles
-    $history  = Get-FaxHistory
+    $history  = Get-ScrubHistory
     $now      = Get-Date
 
     $due  = [System.Collections.Generic.List[PSCustomObject]]::new()
@@ -213,7 +213,7 @@ function Show-SmartRoutine {
         $sched       = Get-EffectiveSchedule -Key $m.Key -Cfg $cfg -CatalogEntry $m
         $lastRunRaw  = $history.last_runs.($m.Key)
         $isDue       = $true
-        $lastDisplay = $script:FaxStr.NEVER
+        $lastDisplay = $script:ScrubStr.NEVER
         $agoDisplay  = ""
 
         if ($lastRunRaw) {
@@ -221,7 +221,7 @@ function Show-SmartRoutine {
             $elapsedH    = ($now - $lastDt).TotalHours
             $elapsedD    = ($now - $lastDt).TotalDays
             $lastDisplay = $lastDt.ToString("dd/MM HH:mm")
-            $agoDisplay  = if ($elapsedH -lt 24) { $script:FaxStr.DAYS_AGO_H -f [int]$elapsedH } else { $script:FaxStr.DAYS_AGO_D -f [int]$elapsedD }
+            $agoDisplay  = if ($elapsedH -lt 24) { $script:ScrubStr.DAYS_AGO_H -f [int]$elapsedH } else { $script:ScrubStr.DAYS_AGO_D -f [int]$elapsedD }
             $isDue       = $elapsedD -ge $sched.FreqDays
         }
 
@@ -240,26 +240,26 @@ function Show-SmartRoutine {
 
     $forceAll = $false
     while ($true) {
-        Write-FaxHeader
-        Write-Host "  $($script:FaxStr.SMART_TITLE)" -ForegroundColor White
+        Write-ScrubHeader
+        Write-Host "  $($script:ScrubStr.SMART_TITLE)" -ForegroundColor White
         Write-Host ""
 
         # ── Nada a fazer ──
         if ($due.Count -eq 0 -and -not $forceAll) {
-            Write-Host "  $($script:FaxStr.SMART_ALL_DONE)" -ForegroundColor Green
+            Write-Host "  $($script:ScrubStr.SMART_ALL_DONE)" -ForegroundColor Green
             $latest = Get-ChildItem (Join-Path $moduleRoot "reports") -Filter "*.html" -ErrorAction SilentlyContinue |
                 Sort-Object LastWriteTime -Descending | Select-Object -First 1
             if ($latest) {
-                Write-Host "  $($script:FaxStr.SMART_LAST_RPT) $($latest.LastWriteTime.ToString('dd/MM/yyyy HH:mm'))" -ForegroundColor DarkGray
+                Write-Host "  $($script:ScrubStr.SMART_LAST_RPT) $($latest.LastWriteTime.ToString('dd/MM/yyyy HH:mm'))" -ForegroundColor DarkGray
             }
             Write-Host ""
             Write-Host ("  " + ("-" * 52)) -ForegroundColor DarkGray
             Write-Host "  " -NoNewline; Write-Host "V" -ForegroundColor Cyan -NoNewline
-            Write-Host " = $($script:FaxStr.SMART_V)   " -NoNewline
+            Write-Host " = $($script:ScrubStr.SMART_V)   " -NoNewline
             Write-Host "R" -ForegroundColor Yellow -NoNewline
-            Write-Host " = $($script:FaxStr.SMART_R)   " -NoNewline
+            Write-Host " = $($script:ScrubStr.SMART_R)   " -NoNewline
             Write-Host "C" -ForegroundColor DarkGray -NoNewline
-            Write-Host " = $($script:FaxStr.BACK)"
+            Write-Host " = $($script:ScrubStr.BACK)"
             Write-Host ""
             $raw = (Read-Host "  >").Trim().ToUpper()
             if ($raw -eq "V") { Open-LatestReport; continue }
@@ -269,25 +269,25 @@ function Show-SmartRoutine {
 
         # ── Lista de modulos devidos ──
         if ($forceAll) {
-            Write-Host "  $($script:FaxStr.SMART_FORCED)" -ForegroundColor Yellow
+            Write-Host "  $($script:ScrubStr.SMART_FORCED)" -ForegroundColor Yellow
             Write-Host ""
         } else {
-            Write-Host "  $($script:FaxStr.SMART_READY)" -ForegroundColor White
+            Write-Host "  $($script:ScrubStr.SMART_READY)" -ForegroundColor White
             Write-Host ""
             foreach ($e in $due) {
                 $t   = (Format-EstSecs $e.EstSecs).PadRight(7)
-                $ago = if ($e.AgoDisplay) { $e.AgoDisplay } else { $script:FaxStr.NEVER_RUN }
+                $ago = if ($e.AgoDisplay) { $e.AgoDisplay } else { $script:ScrubStr.NEVER_RUN }
                 Write-Host ("    " + $e.Module.Label.PadRight(18)) -ForegroundColor Cyan -NoNewline
                 Write-Host ($e.FreqLabel.PadRight(10)) -ForegroundColor DarkGray -NoNewline
                 Write-Host $t -ForegroundColor White -NoNewline
-                Write-Host "$($script:FaxStr.LAST_RUN) $ago" -ForegroundColor DarkGray
+                Write-Host "$($script:ScrubStr.LAST_RUN) $ago" -ForegroundColor DarkGray
             }
             if ($skip.Count -gt 0) {
                 Write-Host ""
-                Write-Host "  $($script:FaxStr.SMART_SKIP -f $skip.Count)" -ForegroundColor DarkGray
+                Write-Host "  $($script:ScrubStr.SMART_SKIP -f $skip.Count)" -ForegroundColor DarkGray
                 foreach ($e in $skip) {
                     Write-Host ("    " + $e.Module.Label.PadRight(18)) -ForegroundColor DarkGray -NoNewline
-                    Write-Host "$($script:FaxStr.NEXT_IN) $($e.FreqLabel)  $($script:FaxStr.LAST_RUN) $($e.AgoDisplay)" -ForegroundColor DarkGray
+                    Write-Host "$($script:ScrubStr.NEXT_IN) $($e.FreqLabel)  $($script:ScrubStr.LAST_RUN) $($e.AgoDisplay)" -ForegroundColor DarkGray
                 }
             }
         }
@@ -302,22 +302,22 @@ function Show-SmartRoutine {
             $dispSecs = $dueSecs
         }
         $estLabel = Format-EstSecs $dispSecs
-        Write-Host "  $($script:FaxStr.SMART_EST) " -NoNewline
+        Write-Host "  $($script:ScrubStr.SMART_EST) " -NoNewline
         Write-Host $estLabel -ForegroundColor $(if ($dispSecs -gt 600) { "Yellow" } else { "Green" })
         if ($dispSecs -gt 1200) {
-            Write-Host "  $($script:FaxStr.SMART_LONG_WARN)" -ForegroundColor Yellow
+            Write-Host "  $($script:ScrubStr.SMART_LONG_WARN)" -ForegroundColor Yellow
         }
 
         Write-Host ""
         Write-Host ("  " + ("-" * 52)) -ForegroundColor DarkGray
         Write-Host "  " -NoNewline; Write-Host "E" -ForegroundColor Cyan -NoNewline
-        Write-Host " = $($script:FaxStr.SMART_E)   " -NoNewline
+        Write-Host " = $($script:ScrubStr.SMART_E)   " -NoNewline
         Write-Host "L" -ForegroundColor Yellow -NoNewline
-        Write-Host " = $($script:FaxStr.SMART_L)   " -NoNewline
+        Write-Host " = $($script:ScrubStr.SMART_L)   " -NoNewline
         Write-Host "V" -ForegroundColor White -NoNewline
-        Write-Host " = $($script:FaxStr.SMART_V)   " -NoNewline
+        Write-Host " = $($script:ScrubStr.SMART_V)   " -NoNewline
         Write-Host "C" -ForegroundColor DarkGray -NoNewline
-        Write-Host " = $($script:FaxStr.BACK)"
+        Write-Host " = $($script:ScrubStr.BACK)"
         Write-Host ""
 
         $raw = (Read-Host "  >").Trim().ToUpper()
@@ -327,31 +327,31 @@ function Show-SmartRoutine {
 
         $dryRun = ($raw -ne "L")
         if (-not $dryRun) {
-            $c = Read-Host "  $($script:FaxStr.CONFIRM_LIVE -f $script:FaxStr.CONFIRM_WORD)"
-            if ($c -ne $script:FaxStr.CONFIRM_WORD) {
-                Write-Host "  $($script:FaxStr.CANCELED)" -ForegroundColor Yellow
+            $c = Read-Host "  $($script:ScrubStr.CONFIRM_LIVE -f $script:ScrubStr.CONFIRM_WORD)"
+            if ($c -ne $script:ScrubStr.CONFIRM_WORD) {
+                Write-Host "  $($script:ScrubStr.CANCELED)" -ForegroundColor Yellow
                 Start-Sleep -Seconds 1
                 continue
             }
         }
 
-        Write-FaxHeader
+        Write-ScrubHeader
         if ($forceAll) {
-            Invoke-FaxCustom -Toggles $toggles -DryRun $dryRun
-            $hist = Get-FaxHistory
-            Save-FaxHistory -History $hist -Keys ($toggles.Keys | Where-Object { $toggles[$_] })
+            Invoke-ScrubCustom -Toggles $toggles -DryRun $dryRun
+            $hist = Get-ScrubHistory
+            Save-ScrubHistory -History $hist -Keys ($toggles.Keys | Where-Object { $toggles[$_] })
         } else {
             $toggles = @{}
             foreach ($m in $script:CATALOG) { $toggles[$m.Key] = $false }
             foreach ($e in $due)             { $toggles[$e.Module.Key] = $true }
-            Invoke-FaxCustom -Toggles $toggles -DryRun $dryRun
-            $hist = Get-FaxHistory
-            Save-FaxHistory -History $hist -Keys ($due | ForEach-Object { $_.Module.Key })
+            Invoke-ScrubCustom -Toggles $toggles -DryRun $dryRun
+            $hist = Get-ScrubHistory
+            Save-ScrubHistory -History $hist -Keys ($due | ForEach-Object { $_.Module.Key })
         }
 
         Open-LatestReport
         Write-Host ""
-        Read-Host "  $($script:FaxStr.PRESS_ENTER_MENU)" | Out-Null
+        Read-Host "  $($script:ScrubStr.PRESS_ENTER_MENU)" | Out-Null
         return
     }
 }
@@ -364,9 +364,9 @@ function Show-ModuleSelector {
     foreach ($key in $src.Keys) { $toggles[$key] = $src[$key] }
 
     while ($true) {
-        Write-FaxHeader
-        Write-Host "  $($script:FaxStr.MOD_TITLE)" -ForegroundColor White
-        Write-Host "  $($script:FaxStr.MOD_ALWAYS)" -ForegroundColor DarkGray
+        Write-ScrubHeader
+        Write-Host "  $($script:ScrubStr.MOD_TITLE)" -ForegroundColor White
+        Write-Host "  $($script:ScrubStr.MOD_ALWAYS)" -ForegroundColor DarkGray
         Write-Host ""
 
         for ($i = 0; $i -lt $script:CATALOG.Count; $i++) {
@@ -384,11 +384,11 @@ function Show-ModuleSelector {
 
         Write-Host ""
         Write-Host ("  " + ("-" * 52)) -ForegroundColor DarkGray
-        Write-Host "  $($script:FaxStr.NUM) = $($script:FaxStr.TOGGLE)   " -NoNewline
+        Write-Host "  $($script:ScrubStr.NUM) = $($script:ScrubStr.TOGGLE)   " -NoNewline
         Write-Host "ok" -ForegroundColor Cyan -NoNewline
-        Write-Host " = $($script:FaxStr.CONFIRM_ACT)   " -NoNewline
+        Write-Host " = $($script:ScrubStr.CONFIRM_ACT)   " -NoNewline
         Write-Host "c" -ForegroundColor Yellow -NoNewline
-        Write-Host " = $($script:FaxStr.BACK)"
+        Write-Host " = $($script:ScrubStr.BACK)"
         Write-Host ""
 
         $raw = (Read-Host "  >").Trim().ToLower()
@@ -420,9 +420,9 @@ function Show-FreqConfig {
     }
 
     while ($true) {
-        Write-FaxHeader
-        Write-Host "  $($script:FaxStr.CFG_FREQ_TITLE)" -ForegroundColor White
-        Write-Host "  $($script:FaxStr.CFG_FREQ_DESC)" -ForegroundColor DarkGray
+        Write-ScrubHeader
+        Write-Host "  $($script:ScrubStr.CFG_FREQ_TITLE)" -ForegroundColor White
+        Write-Host "  $($script:ScrubStr.CFG_FREQ_DESC)" -ForegroundColor DarkGray
         Write-Host ""
 
         for ($i = 0; $i -lt $script:CATALOG.Count; $i++) {
@@ -437,12 +437,12 @@ function Show-FreqConfig {
 
         Write-Host ""
         Write-Host ("  " + ("-" * 52)) -ForegroundColor DarkGray
-        Write-Host "  $($script:FaxStr.CFG_NUM_EDIT)   " -NoNewline
+        Write-Host "  $($script:ScrubStr.CFG_NUM_EDIT)   " -NoNewline
         Write-Host "ok" -ForegroundColor Cyan -NoNewline
-        Write-Host " = $($script:FaxStr.SAVE)   " -NoNewline
+        Write-Host " = $($script:ScrubStr.SAVE)   " -NoNewline
         Write-Host "c" -ForegroundColor Yellow -NoNewline
-        Write-Host " = $($script:FaxStr.BACK)"
-        Write-Host "  $($script:FaxStr.CFG_FREQ_DEFS)"
+        Write-Host " = $($script:ScrubStr.BACK)"
+        Write-Host "  $($script:ScrubStr.CFG_FREQ_DEFS)"
         Write-Host ""
 
         $raw = (Read-Host "  >").Trim().ToLower()
@@ -453,7 +453,7 @@ function Show-FreqConfig {
                 $cfg.schedule | Add-Member -MemberType NoteProperty -Name $key -Value $entry -Force
             }
             $cfg | ConvertTo-Json -Depth 10 | Set-Content $cfgPath -Encoding UTF8
-            Write-Host "  $($script:FaxStr.SAVED)" -ForegroundColor Green
+            Write-Host "  $($script:ScrubStr.SAVED)" -ForegroundColor Green
             Start-Sleep -Seconds 1
             return
         }
@@ -464,13 +464,13 @@ function Show-FreqConfig {
             $key   = $script:CATALOG[$n - 1].Key
             $label = $script:CATALOG[$n - 1].Label
             Write-Host ""
-            Write-Host "  $($script:FaxStr.CFG_EDITING) $label" -ForegroundColor Cyan
-            Write-Host "  $($script:FaxStr.CFG_FREQ_CUR) $($sched[$key].FreqDays) $($script:FaxStr.DAYS)" -ForegroundColor DarkGray
-            $fRaw = (Read-Host "  $($script:FaxStr.CFG_FREQ_NEW)").Trim()
+            Write-Host "  $($script:ScrubStr.CFG_EDITING) $label" -ForegroundColor Cyan
+            Write-Host "  $($script:ScrubStr.CFG_FREQ_CUR) $($sched[$key].FreqDays) $($script:ScrubStr.DAYS)" -ForegroundColor DarkGray
+            $fRaw = (Read-Host "  $($script:ScrubStr.CFG_FREQ_NEW)").Trim()
             $fVal = 0
             if ([int]::TryParse($fRaw, [ref]$fVal) -and $fVal -ge 1) { $sched[$key].FreqDays = $fVal }
-            Write-Host "  $($script:FaxStr.CFG_EST_CUR) $(Format-EstSecs $sched[$key].EstSecs)" -ForegroundColor DarkGray
-            $eRaw = (Read-Host "  $($script:FaxStr.CFG_EST_NEW)").Trim()
+            Write-Host "  $($script:ScrubStr.CFG_EST_CUR) $(Format-EstSecs $sched[$key].EstSecs)" -ForegroundColor DarkGray
+            $eRaw = (Read-Host "  $($script:ScrubStr.CFG_EST_NEW)").Trim()
             $eVal = 0
             if ($eRaw -ne "" -and [int]::TryParse($eRaw, [ref]$eVal) -and $eVal -ge 1) { $sched[$key].EstSecs = $eVal }
         }
@@ -490,10 +490,10 @@ function Show-ModuleConfig {
     }
 
     while ($true) {
-        Write-FaxHeader
-        Write-Host "  $($script:FaxStr.CFG_MOD_TITLE)" -ForegroundColor White -NoNewline
-        Write-Host $script:FaxStr.CFG_MOD_SUB -ForegroundColor DarkGray
-        Write-Host "  $($script:FaxStr.CFG_MOD_ALWAYS)" -ForegroundColor DarkGray
+        Write-ScrubHeader
+        Write-Host "  $($script:ScrubStr.CFG_MOD_TITLE)" -ForegroundColor White -NoNewline
+        Write-Host $script:ScrubStr.CFG_MOD_SUB -ForegroundColor DarkGray
+        Write-Host "  $($script:ScrubStr.CFG_MOD_ALWAYS)" -ForegroundColor DarkGray
         Write-Host ""
 
         for ($i = 0; $i -lt $script:CATALOG.Count; $i++) {
@@ -511,15 +511,15 @@ function Show-ModuleConfig {
 
         Write-Host ""
         Write-Host ("  " + ("-" * 62)) -ForegroundColor DarkGray
-        Write-Host "  $($script:FaxStr.NUM) = $($script:FaxStr.TOGGLE)   " -NoNewline
+        Write-Host "  $($script:ScrubStr.NUM) = $($script:ScrubStr.TOGGLE)   " -NoNewline
         Write-Host "ok" -ForegroundColor Cyan -NoNewline
-        Write-Host " = $($script:FaxStr.SAVE)   " -NoNewline
+        Write-Host " = $($script:ScrubStr.SAVE)   " -NoNewline
         Write-Host "f" -ForegroundColor Cyan -NoNewline
-        Write-Host " = $($script:FaxStr.CFG_F_FREQ)   " -NoNewline
+        Write-Host " = $($script:ScrubStr.CFG_F_FREQ)   " -NoNewline
         Write-Host "c" -ForegroundColor Yellow -NoNewline
-        Write-Host " = $($script:FaxStr.BACK)   " -NoNewline
+        Write-Host " = $($script:ScrubStr.BACK)   " -NoNewline
         Write-Host "[!]" -ForegroundColor Yellow -NoNewline
-        Write-Host " = $($script:FaxStr.CFG_CAUTION_LBL)"
+        Write-Host " = $($script:ScrubStr.CFG_CAUTION_LBL)"
         Write-Host ""
 
         $raw = (Read-Host "  >").Trim().ToLower()
@@ -529,7 +529,7 @@ function Show-ModuleConfig {
                 $cfg.modules | Add-Member -MemberType NoteProperty -Name $key -Value $toggles[$key] -Force
             }
             $cfg | ConvertTo-Json -Depth 10 | Set-Content $cfgPath -Encoding UTF8
-            Write-Host "  $($script:FaxStr.SAVED)" -ForegroundColor Green
+            Write-Host "  $($script:ScrubStr.SAVED)" -ForegroundColor Green
             Start-Sleep -Seconds 1
             return
         }
@@ -570,23 +570,23 @@ function Format-ScoreColor {
 
 function Show-StartupManager {
     while ($true) {
-        Write-FaxHeader
-        Write-Host "  $($script:FaxStr.START_TITLE)" -ForegroundColor White
-        Write-Host "  $($script:FaxStr.START_LOADING)" -ForegroundColor DarkGray
+        Write-ScrubHeader
+        Write-Host "  $($script:ScrubStr.START_TITLE)" -ForegroundColor White
+        Write-Host "  $($script:ScrubStr.START_LOADING)" -ForegroundColor DarkGray
         $audit = Get-StartupAudit
         $items = @($audit.Items)
 
         if ($items.Count -eq 0) {
-            Write-Host "  $($script:FaxStr.START_NONE)" -ForegroundColor DarkGray
+            Write-Host "  $($script:ScrubStr.START_NONE)" -ForegroundColor DarkGray
             Write-Host ""
-            Read-Host "  $($script:FaxStr.PRESS_ENTER)" | Out-Null
+            Read-Host "  $($script:ScrubStr.PRESS_ENTER)" | Out-Null
             return
         }
 
         Clear-Host
-        Write-FaxHeader
-        Write-Host "  $($script:FaxStr.START_TITLE)  " -ForegroundColor White -NoNewline
-        Write-Host "($($items.Count) $($script:FaxStr.START_ENTRIES))" -ForegroundColor DarkGray
+        Write-ScrubHeader
+        Write-Host "  $($script:ScrubStr.START_TITLE)  " -ForegroundColor White -NoNewline
+        Write-Host "($($items.Count) $($script:ScrubStr.START_ENTRIES))" -ForegroundColor DarkGray
         Write-Host ""
 
         for ($i = 0; $i -lt $items.Count; $i++) {
@@ -609,11 +609,11 @@ function Show-StartupManager {
 
         Write-Host ""
         Write-Host ("  " + ("-" * 52)) -ForegroundColor DarkGray
-        Write-Host "  $($script:FaxStr.NUM) = $($script:FaxStr.TOGGLE)   " -NoNewline
+        Write-Host "  $($script:ScrubStr.NUM) = $($script:ScrubStr.TOGGLE)   " -NoNewline
         Write-Host "d" -ForegroundColor Cyan -NoNewline
-        Write-Host "<N> = $($script:FaxStr.START_DETAIL)   " -NoNewline
+        Write-Host "<N> = $($script:ScrubStr.START_DETAIL)   " -NoNewline
         Write-Host "0" -ForegroundColor DarkGray -NoNewline
-        Write-Host " = $($script:FaxStr.BACK)"
+        Write-Host " = $($script:ScrubStr.BACK)"
         Write-Host ""
 
         $raw = (Read-Host "  >").Trim().ToLower()
@@ -624,13 +624,13 @@ function Show-StartupManager {
             if ($n -ge 1 -and $n -le $items.Count) {
                 $it = $items[$n - 1]
                 Write-Host ""
-                Write-Host "  $($script:FaxStr.START_NAME):    $($it.Name)"     -ForegroundColor White
-                Write-Host "  $($script:FaxStr.START_TYPE):    $($it.Type)"     -ForegroundColor DarkGray
-                Write-Host "  $($script:FaxStr.START_SCOPE):   $($it.Scope)"    -ForegroundColor DarkGray
-                Write-Host "  $($script:FaxStr.START_CMD):  $($it.Command)"  -ForegroundColor DarkGray
-                Write-Host "  $($script:FaxStr.START_LOC):   $($it.Location)" -ForegroundColor DarkGray
+                Write-Host "  $($script:ScrubStr.START_NAME):    $($it.Name)"     -ForegroundColor White
+                Write-Host "  $($script:ScrubStr.START_TYPE):    $($it.Type)"     -ForegroundColor DarkGray
+                Write-Host "  $($script:ScrubStr.START_SCOPE):   $($it.Scope)"    -ForegroundColor DarkGray
+                Write-Host "  $($script:ScrubStr.START_CMD):  $($it.Command)"  -ForegroundColor DarkGray
+                Write-Host "  $($script:ScrubStr.START_LOC):   $($it.Location)" -ForegroundColor DarkGray
                 Write-Host ""
-                Read-Host "  $($script:FaxStr.PRESS_ENTER)" | Out-Null
+                Read-Host "  $($script:ScrubStr.PRESS_ENTER)" | Out-Null
             }
             continue
         }
@@ -639,16 +639,16 @@ function Show-StartupManager {
         if ([int]::TryParse($raw, [ref]$n) -and $n -ge 1 -and $n -le $items.Count) {
             $it = $items[$n - 1]
             if ($it.Enabled) {
-                $c = Read-Host "  $($script:FaxStr.START_DISABLE -f $it.Name) ($($script:FaxStr.CONFIRM_WORD)/N)"
-                if ($c -eq $script:FaxStr.CONFIRM_WORD) {
+                $c = Read-Host "  $($script:ScrubStr.START_DISABLE -f $it.Name) ($($script:ScrubStr.CONFIRM_WORD)/N)"
+                if ($c -eq $script:ScrubStr.CONFIRM_WORD) {
                     $res = Disable-StartupEntry -Entry $it
                     $col = if ($res.Success) { "Green" } else { "Red" }
                     Write-Host "  $($res.Message)" -ForegroundColor $col
                     Start-Sleep -Seconds 1
                 }
             } else {
-                $c = Read-Host "  $($script:FaxStr.START_ENABLE -f $it.Name) ($($script:FaxStr.CONFIRM_WORD)/N)"
-                if ($c -eq $script:FaxStr.CONFIRM_WORD) {
+                $c = Read-Host "  $($script:ScrubStr.START_ENABLE -f $it.Name) ($($script:ScrubStr.CONFIRM_WORD)/N)"
+                if ($c -eq $script:ScrubStr.CONFIRM_WORD) {
                     $res = Enable-StartupEntry -Entry $it
                     $col = if ($res.Success) { "Green" } else { "Red" }
                     Write-Host "  $($res.Message)" -ForegroundColor $col
@@ -672,16 +672,16 @@ function Format-SizeBar {
 function Invoke-DrivePickerMenu {
     $drives = @([System.IO.DriveInfo]::GetDrives() | Where-Object { $_.IsReady })
     Clear-Host
-    Write-FaxHeader
-    Write-Host "  $($script:FaxStr.DRV_TITLE)" -ForegroundColor White
+    Write-ScrubHeader
+    Write-Host "  $($script:ScrubStr.DRV_TITLE)" -ForegroundColor White
     Write-Host ""
     for ($i = 0; $i -lt $drives.Count; $i++) {
         $d        = $drives[$i]
-        $freeStr  = ConvertTo-FaxBytes $d.AvailableFreeSpace
-        $totalStr = ConvertTo-FaxBytes $d.TotalSize
+        $freeStr  = ConvertTo-ScrubBytes $d.AvailableFreeSpace
+        $totalStr = ConvertTo-ScrubBytes $d.TotalSize
         Write-Host ("  " + "$($i + 1)".PadLeft(2) + "  ") -NoNewline
         Write-Host $d.Name.TrimEnd('\').PadRight(6) -ForegroundColor White -NoNewline
-        Write-Host "$freeStr $($script:FaxStr.DRV_FREE_OF) $totalStr" -ForegroundColor DarkGray
+        Write-Host "$freeStr $($script:ScrubStr.DRV_FREE_OF) $totalStr" -ForegroundColor DarkGray
     }
     Write-Host ""
     Write-Host ("  " + ("-" * 52)) -ForegroundColor DarkGray
@@ -702,19 +702,19 @@ function Show-FolderAnalyzer {
 
     if (-not $StartPath) {
         Clear-Host
-        Write-FaxHeader
-        Write-Host "  $($script:FaxStr.FOLD_TITLE)" -ForegroundColor White
+        Write-ScrubHeader
+        Write-Host "  $($script:ScrubStr.FOLD_TITLE)" -ForegroundColor White
         Write-Host ""
         Write-Host ("  " + ("-" * 52)) -ForegroundColor DarkGray
-        Write-Host "   1  " -NoNewline; Write-Host $script:FaxStr.FOLD_PROFILE -ForegroundColor White -NoNewline
+        Write-Host "   1  " -NoNewline; Write-Host $script:ScrubStr.FOLD_PROFILE -ForegroundColor White -NoNewline
         Write-Host "   $env:USERPROFILE" -ForegroundColor DarkGray
-        Write-Host "   2  " -NoNewline; Write-Host $script:FaxStr.FOLD_DRIVE -ForegroundColor White
-        Write-Host "   3  " -NoNewline; Write-Host $script:FaxStr.FOLD_TYPE_PATH -ForegroundColor White
+        Write-Host "   2  " -NoNewline; Write-Host $script:ScrubStr.FOLD_DRIVE -ForegroundColor White
+        Write-Host "   3  " -NoNewline; Write-Host $script:ScrubStr.FOLD_TYPE_PATH -ForegroundColor White
         Write-Host ""
         Write-Host ("  " + ("-" * 52)) -ForegroundColor DarkGray
         Write-Host "  [1-3]   " -NoNewline
         Write-Host "0" -ForegroundColor DarkGray -NoNewline
-        Write-Host " = $($script:FaxStr.BACK)"
+        Write-Host " = $($script:ScrubStr.BACK)"
         Write-Host ""
         $entry = (Read-Host "  >").Trim()
         switch ($entry) {
@@ -726,9 +726,9 @@ function Show-FolderAnalyzer {
                 $StartPath = $picked
             }
             "3" {
-                $typed = (Read-Host "  $($script:FaxStr.FOLD_PATH_PROMPT)").Trim()
+                $typed = (Read-Host "  $($script:ScrubStr.FOLD_PATH_PROMPT)").Trim()
                 if (Test-Path $typed -PathType Container) { $StartPath = $typed }
-                else { Write-Host "  $($script:FaxStr.NOT_FOUND)" -ForegroundColor Yellow; Start-Sleep 1; return }
+                else { Write-Host "  $($script:ScrubStr.NOT_FOUND)" -ForegroundColor Yellow; Start-Sleep 1; return }
             }
             default { return }
         }
@@ -742,9 +742,9 @@ function Show-FolderAnalyzer {
     while ($true) {
         if ($null -eq $tree) {
             Clear-Host
-            Write-FaxHeader
-            Write-Host "  $($script:FaxStr.FOLD_TITLE)  " -ForegroundColor White -NoNewline
-            Write-Host $script:FaxStr.LOADING -ForegroundColor DarkGray
+            Write-ScrubHeader
+            Write-Host "  $($script:ScrubStr.FOLD_TITLE)  " -ForegroundColor White -NoNewline
+            Write-Host $script:ScrubStr.LOADING -ForegroundColor DarkGray
             $tree = Get-FolderTree -Path $currentPath
         }
 
@@ -757,7 +757,7 @@ function Show-FolderAnalyzer {
 
         Clear-Host
         Write-Host "  $currentPath" -ForegroundColor Cyan
-        $totalLabel = if ($tree.TotalBytes -gt 0) { "  $($script:FaxStr.FOLD_TOTAL) $(ConvertTo-FaxBytes $tree.TotalBytes)" } else { "" }
+        $totalLabel = if ($tree.TotalBytes -gt 0) { "  $($script:ScrubStr.FOLD_TOTAL) $(ConvertTo-ScrubBytes $tree.TotalBytes)" } else { "" }
         Write-Host $totalLabel -ForegroundColor DarkGray
         Write-Host ""
 
@@ -769,24 +769,24 @@ function Show-FolderAnalyzer {
             Write-Host $bar -ForegroundColor Cyan -NoNewline
             Write-Host ("  " + "$pct%".PadLeft(4) + "  ") -ForegroundColor DarkGray -NoNewline
             Write-Host ($c.Name.PadRight(30)) -ForegroundColor White -NoNewline
-            Write-Host (ConvertTo-FaxBytes $c.SizeBytes) -ForegroundColor DarkGray
+            Write-Host (ConvertTo-ScrubBytes $c.SizeBytes) -ForegroundColor DarkGray
         }
 
         Write-Host ""
         Write-Host ("  " + ("-" * 52)) -ForegroundColor DarkGray
         $canGoUp = (Split-Path $currentPath -Parent) -ne $currentPath -and (Split-Path $currentPath -Parent) -ne ""
-        Write-Host "  [1-$($pageItems.Count)] $($script:FaxStr.FOLD_ENTER)   " -NoNewline
-        if ($canGoUp) { Write-Host "U" -ForegroundColor Cyan -NoNewline; Write-Host " = $($script:FaxStr.FOLD_UP)   " -NoNewline }
+        Write-Host "  [1-$($pageItems.Count)] $($script:ScrubStr.FOLD_ENTER)   " -NoNewline
+        if ($canGoUp) { Write-Host "U" -ForegroundColor Cyan -NoNewline; Write-Host " = $($script:ScrubStr.FOLD_UP)   " -NoNewline }
         if ($totalPages -gt 1) {
-            if ($page -lt $totalPages - 1) { Write-Host "N" -ForegroundColor Cyan -NoNewline; Write-Host " = $($script:FaxStr.FOLD_NEXT)   " -NoNewline }
-            if ($page -gt 0)               { Write-Host "P" -ForegroundColor Cyan -NoNewline; Write-Host " = $($script:FaxStr.FOLD_PREV)   " -NoNewline }
+            if ($page -lt $totalPages - 1) { Write-Host "N" -ForegroundColor Cyan -NoNewline; Write-Host " = $($script:ScrubStr.FOLD_NEXT)   " -NoNewline }
+            if ($page -gt 0)               { Write-Host "P" -ForegroundColor Cyan -NoNewline; Write-Host " = $($script:ScrubStr.FOLD_PREV)   " -NoNewline }
             Write-Host "($($page+1)/$totalPages)" -ForegroundColor DarkGray -NoNewline
             Write-Host "   " -NoNewline
         }
         Write-Host "C" -ForegroundColor Yellow -NoNewline
-        Write-Host " = $($script:FaxStr.FOLD_PATH)   " -NoNewline
+        Write-Host " = $($script:ScrubStr.FOLD_PATH)   " -NoNewline
         Write-Host "0" -ForegroundColor DarkGray -NoNewline
-        Write-Host " = $($script:FaxStr.BACK)"
+        Write-Host " = $($script:ScrubStr.BACK)"
         Write-Host ""
 
         $raw = (Read-Host "  >").Trim().ToLower()
@@ -834,9 +834,9 @@ function Show-History {
     $logDir  = Join-Path $moduleRoot "logs"
     $hsPath  = Join-Path $moduleRoot "health_history.json"
 
-    Write-FaxHeader
-    Write-Host "  $($script:FaxStr.HIST_TITLE)  " -ForegroundColor White -NoNewline
-    Write-Host $script:FaxStr.LOADING -ForegroundColor DarkGray
+    Write-ScrubHeader
+    Write-Host "  $($script:ScrubStr.HIST_TITLE)  " -ForegroundColor White -NoNewline
+    Write-Host $script:ScrubStr.LOADING -ForegroundColor DarkGray
 
     # ── Parse logs ──
     $executions = [System.Collections.Generic.List[object]]::new()
@@ -879,8 +879,8 @@ function Show-History {
     $hsHist = Get-HealthHistory -HistoryPath $hsPath
 
     Clear-Host
-    Write-FaxHeader
-    Write-Host "  $($script:FaxStr.HIST_TITLE)" -ForegroundColor White
+    Write-ScrubHeader
+    Write-Host "  $($script:ScrubStr.HIST_TITLE)" -ForegroundColor White
     Write-Host ""
 
     # ── Health Score chart ──
@@ -892,14 +892,14 @@ function Show-History {
         Write-Host "  Health Score: " -NoNewline
         Write-Host "$last/100" -ForegroundColor $scoreCol -NoNewline
         Write-Host "  $spark  " -ForegroundColor Cyan -NoNewline
-        Write-Host "($($hsHist.Count) $($script:FaxStr.HIST_MEASURES))" -ForegroundColor DarkGray
+        Write-Host "($($hsHist.Count) $($script:ScrubStr.HIST_MEASURES))" -ForegroundColor DarkGray
         Write-Host ""
     }
 
     # ── Free space trend ──
     $withFree = @($executions | Where-Object { $null -ne $_.FreeGB })
     if ($withFree.Count -ge 2) {
-        Write-Host "  $($script:FaxStr.HIST_FREE -f [math]::Min($withFree.Count,10))" -ForegroundColor White
+        Write-Host "  $($script:ScrubStr.HIST_FREE -f [math]::Min($withFree.Count,10))" -ForegroundColor White
         $slice = if ($withFree.Count -gt 10) { $withFree[($withFree.Count-10)..($withFree.Count-1)] } else { $withFree }
         $maxFree = ($slice | Measure-Object -Property FreeGB -Maximum).Maximum
         $barW    = 30
@@ -917,7 +917,7 @@ function Show-History {
     # ── Freed per execution ──
     $withFreed = @($executions | Where-Object { $_.FreedBytes -gt 0 })
     if ($withFreed.Count -ge 1) {
-        Write-Host "  $($script:FaxStr.HIST_FREED -f [math]::Min($withFreed.Count,8))" -ForegroundColor White
+        Write-Host "  $($script:ScrubStr.HIST_FREED -f [math]::Min($withFreed.Count,8))" -ForegroundColor White
         $slice   = if ($withFreed.Count -gt 8) { $withFreed[($withFreed.Count-8)..($withFreed.Count-1)] } else { $withFreed }
         $maxFreed = ($slice | Measure-Object -Property FreedBytes -Maximum).Maximum
         $barW    = 30
@@ -927,20 +927,20 @@ function Show-History {
             $label  = $ex.Date.ToString("dd/MM")
             Write-Host ("  " + $label + "  ") -ForegroundColor DarkGray -NoNewline
             Write-Host $bar -ForegroundColor Yellow -NoNewline
-            Write-Host ("  " + (ConvertTo-FaxBytes $ex.FreedBytes)) -ForegroundColor White
+            Write-Host ("  " + (ConvertTo-ScrubBytes $ex.FreedBytes)) -ForegroundColor White
         }
         Write-Host ""
     }
 
     if ($executions.Count -eq 0 -and $hsHist.Count -eq 0) {
-        Write-Host "  $($script:FaxStr.HIST_NO_DATA)" -ForegroundColor DarkGray
-        Write-Host "  $($script:FaxStr.HIST_NO_DATA2)" -ForegroundColor DarkGray
+        Write-Host "  $($script:ScrubStr.HIST_NO_DATA)" -ForegroundColor DarkGray
+        Write-Host "  $($script:ScrubStr.HIST_NO_DATA2)" -ForegroundColor DarkGray
         Write-Host ""
     }
 
     Write-Host ("  " + ("-" * 52)) -ForegroundColor DarkGray
     Write-Host ""
-    Read-Host "  $($script:FaxStr.PRESS_ENTER)" | Out-Null
+    Read-Host "  $($script:ScrubStr.PRESS_ENTER)" | Out-Null
 }
 
 # ── Watch mode ────────────────────────────────────────────────────────────────
@@ -948,17 +948,17 @@ function Show-History {
 function Show-WatchMode {
     param([int]$IntervalSecs = 30)
     Write-Host ""
-    Write-Host "  $($script:FaxStr.WATCH_STARTED -f $IntervalSecs)" -ForegroundColor DarkGray
+    Write-Host "  $($script:ScrubStr.WATCH_STARTED -f $IntervalSecs)" -ForegroundColor DarkGray
     Start-Sleep -Seconds 1
 
     while ($true) {
-        $diskResult    = Get-DiskReport -AlertUsagePct (Read-FaxConfig).alert_disk_usage_pct
+        $diskResult    = Get-DiskReport -AlertUsagePct (Read-ScrubConfig).alert_disk_usage_pct
         $rebootResult  = Get-PendingRebootCheck
         $cached        = Get-CachedHealthScore
 
         Clear-Host
         Write-Host ""
-        Write-Host "  $($script:FaxStr.WATCH_TITLE)" -ForegroundColor Cyan -NoNewline
+        Write-Host "  $($script:ScrubStr.WATCH_TITLE)" -ForegroundColor Cyan -NoNewline
         Write-Host "  --  $(Get-Date -Format 'dd/MM/yyyy HH:mm:ss')" -ForegroundColor DarkGray
         Write-Host ("  " + ("-" * 52)) -ForegroundColor DarkGray
         Write-Host ""
@@ -979,21 +979,21 @@ function Show-WatchMode {
             $barCol = switch ($d.AlertLevel) { "WARNING" { "Red" } "NOTICE" { "Yellow" } default { "Cyan" } }
             Write-Host ("  " + $d.Drive.PadRight(4)) -NoNewline
             Write-Host $bar -ForegroundColor $barCol -NoNewline
-            Write-Host ("  " + "$pct%".PadLeft(4) + "  $($script:FaxStr.WATCH_USED)  ") -ForegroundColor DarkGray -NoNewline
-            Write-Host "$($d.FreeGB) $($script:FaxStr.WATCH_FREE_GB)" -ForegroundColor White
+            Write-Host ("  " + "$pct%".PadLeft(4) + "  $($script:ScrubStr.WATCH_USED)  ") -ForegroundColor DarkGray -NoNewline
+            Write-Host "$($d.FreeGB) $($script:ScrubStr.WATCH_FREE_GB)" -ForegroundColor White
         }
         Write-Host ""
 
         if ($rebootResult.RebootRequired) {
             Write-Host "  Reboot: " -NoNewline
-            Write-Host $script:FaxStr.WATCH_PENDING -ForegroundColor Red -NoNewline
+            Write-Host $script:ScrubStr.WATCH_PENDING -ForegroundColor Red -NoNewline
             Write-Host "  ($($rebootResult.Reasons -join ', '))" -ForegroundColor DarkGray
         } else {
             Write-Host "  Reboot: " -NoNewline
             Write-Host "OK" -ForegroundColor Green
         }
 
-        $hist    = Get-FaxHistory
+        $hist    = Get-ScrubHistory
         $now     = Get-Date
         $lastRun = $null
         foreach ($m in $script:CATALOG) {
@@ -1005,16 +1005,16 @@ function Show-WatchMode {
         }
         if ($lastRun) {
             $ago = $now - $lastRun
-            $agoStr = if ($ago.TotalHours -lt 24) { $script:FaxStr.DAYS_AGO_H -f [int]$ago.TotalHours } else { $script:FaxStr.DAYS_AGO_D -f [int]$ago.TotalDays }
-            Write-Host "  $($script:FaxStr.WATCH_LAST) " -NoNewline
+            $agoStr = if ($ago.TotalHours -lt 24) { $script:ScrubStr.DAYS_AGO_H -f [int]$ago.TotalHours } else { $script:ScrubStr.DAYS_AGO_D -f [int]$ago.TotalDays }
+            Write-Host "  $($script:ScrubStr.WATCH_LAST) " -NoNewline
             Write-Host $agoStr -ForegroundColor DarkGray
         }
 
         Write-Host ""
         Write-Host ("  " + ("-" * 52)) -ForegroundColor DarkGray
-        Write-Host "  $($script:FaxStr.WATCH_UPDATE -f $IntervalSecs)  " -ForegroundColor DarkGray -NoNewline
+        Write-Host "  $($script:ScrubStr.WATCH_UPDATE -f $IntervalSecs)  " -ForegroundColor DarkGray -NoNewline
         Write-Host "Ctrl+C" -ForegroundColor DarkGray -NoNewline
-        Write-Host " $($script:FaxStr.WATCH_EXIT)" -ForegroundColor DarkGray
+        Write-Host " $($script:ScrubStr.WATCH_EXIT)" -ForegroundColor DarkGray
 
         Start-Sleep -Seconds $IntervalSecs
     }
@@ -1024,119 +1024,119 @@ function Show-WatchMode {
 
 function Show-Menu {
     while ($true) {
-        Write-FaxHeader
+        Write-ScrubHeader
         $cached      = Get-CachedHealthScore
         $presetColor = switch ($script:ActivePreset) { "diagnostico" { "Cyan" } "limpeza" { "Yellow" } default { "White" } }
 
         if ($cached) {
             $sCol = Format-ScoreColor -Score $cached.Score
-            Write-Host "  $($script:FaxStr.MENU_SCORE) " -NoNewline
+            Write-Host "  $($script:ScrubStr.MENU_SCORE) " -NoNewline
             Write-Host "$($cached.Score)" -ForegroundColor $sCol -NoNewline
             if ($cached.Trend) { Write-Host "  $($cached.Trend)" -ForegroundColor DarkGray -NoNewline }
-            Write-Host "     $($script:FaxStr.MENU_PRESET) " -NoNewline
+            Write-Host "     $($script:ScrubStr.MENU_PRESET) " -NoNewline
         } else {
-            Write-Host "  $($script:FaxStr.MENU_PRESET) " -NoNewline
+            Write-Host "  $($script:ScrubStr.MENU_PRESET) " -NoNewline
         }
         Write-Host (Get-PresetLabel) -ForegroundColor $presetColor -NoNewline
         Write-Host "   " -NoNewline
         Write-Host "P" -ForegroundColor DarkGray -NoNewline
-        Write-Host " = $($script:FaxStr.MENU_P_TOGGLE)" -ForegroundColor DarkGray
+        Write-Host " = $($script:ScrubStr.MENU_P_TOGGLE)" -ForegroundColor DarkGray
         Write-Host ""
 
-        Write-Host "  $($script:FaxStr.MENU_1)" -ForegroundColor Cyan -NoNewline
-        Write-Host $script:FaxStr.MENU_1_DESC -ForegroundColor DarkGray
-        Write-Host "  $($script:FaxStr.MENU_2)" -ForegroundColor White -NoNewline
-        Write-Host $script:FaxStr.MENU_2_DESC -ForegroundColor DarkGray
-        Write-Host "  $($script:FaxStr.MENU_3)" -ForegroundColor Yellow -NoNewline
-        Write-Host $script:FaxStr.MENU_3_DESC -ForegroundColor DarkGray
-        Write-Host "  $($script:FaxStr.MENU_4)" -ForegroundColor White -NoNewline
-        Write-Host $script:FaxStr.MENU_4_DESC -ForegroundColor DarkGray
+        Write-Host "  $($script:ScrubStr.MENU_1)" -ForegroundColor Cyan -NoNewline
+        Write-Host $script:ScrubStr.MENU_1_DESC -ForegroundColor DarkGray
+        Write-Host "  $($script:ScrubStr.MENU_2)" -ForegroundColor White -NoNewline
+        Write-Host $script:ScrubStr.MENU_2_DESC -ForegroundColor DarkGray
+        Write-Host "  $($script:ScrubStr.MENU_3)" -ForegroundColor Yellow -NoNewline
+        Write-Host $script:ScrubStr.MENU_3_DESC -ForegroundColor DarkGray
+        Write-Host "  $($script:ScrubStr.MENU_4)" -ForegroundColor White -NoNewline
+        Write-Host $script:ScrubStr.MENU_4_DESC -ForegroundColor DarkGray
         Write-Host ""
-        Write-Host "  $($script:FaxStr.MENU_5)" -ForegroundColor White -NoNewline
-        Write-Host $script:FaxStr.MENU_5_DESC -ForegroundColor DarkGray
-        Write-Host "  $($script:FaxStr.MENU_6)" -ForegroundColor White -NoNewline
-        Write-Host $script:FaxStr.MENU_6_DESC -ForegroundColor DarkGray
-        Write-Host "  $($script:FaxStr.MENU_7)" -ForegroundColor White -NoNewline
-        Write-Host $script:FaxStr.MENU_7_DESC -ForegroundColor DarkGray
-        Write-Host "  $($script:FaxStr.MENU_8)" -ForegroundColor White -NoNewline
-        Write-Host $script:FaxStr.MENU_8_DESC -ForegroundColor DarkGray
+        Write-Host "  $($script:ScrubStr.MENU_5)" -ForegroundColor White -NoNewline
+        Write-Host $script:ScrubStr.MENU_5_DESC -ForegroundColor DarkGray
+        Write-Host "  $($script:ScrubStr.MENU_6)" -ForegroundColor White -NoNewline
+        Write-Host $script:ScrubStr.MENU_6_DESC -ForegroundColor DarkGray
+        Write-Host "  $($script:ScrubStr.MENU_7)" -ForegroundColor White -NoNewline
+        Write-Host $script:ScrubStr.MENU_7_DESC -ForegroundColor DarkGray
+        Write-Host "  $($script:ScrubStr.MENU_8)" -ForegroundColor White -NoNewline
+        Write-Host $script:ScrubStr.MENU_8_DESC -ForegroundColor DarkGray
         Write-Host ""
-        Write-Host "  $($script:FaxStr.MENU_9)" -ForegroundColor DarkGray -NoNewline
-        Write-Host $script:FaxStr.MENU_9_DESC -ForegroundColor DarkGray
-        Write-Host "  $($script:FaxStr.MENU_A)" -ForegroundColor DarkGray
-        Write-Host "  $($script:FaxStr.MENU_B)" -ForegroundColor DarkGray
-        Write-Host "  $($script:FaxStr.MENU_I)" -ForegroundColor DarkGray -NoNewline
-        Write-Host $script:FaxStr.MENU_I_DESC -ForegroundColor DarkGray
-        Write-Host "  $($script:FaxStr.MENU_0)"
+        Write-Host "  $($script:ScrubStr.MENU_9)" -ForegroundColor DarkGray -NoNewline
+        Write-Host $script:ScrubStr.MENU_9_DESC -ForegroundColor DarkGray
+        Write-Host "  $($script:ScrubStr.MENU_A)" -ForegroundColor DarkGray
+        Write-Host "  $($script:ScrubStr.MENU_B)" -ForegroundColor DarkGray
+        Write-Host "  $($script:ScrubStr.MENU_I)" -ForegroundColor DarkGray -NoNewline
+        Write-Host $script:ScrubStr.MENU_I_DESC -ForegroundColor DarkGray
+        Write-Host "  $($script:ScrubStr.MENU_0)"
         Write-Host ""
         Write-Host ("  " + ("-" * 52)) -ForegroundColor DarkGray
         Write-Host ""
 
-        switch ((Read-Host "  $($script:FaxStr.CHOOSE)").Trim().ToLower()) {
+        switch ((Read-Host "  $($script:ScrubStr.CHOOSE)").Trim().ToLower()) {
 
             "p" { Step-ActivePreset }
 
             "1" { Show-SmartRoutine }
 
             "2" {
-                Write-FaxHeader
+                Write-ScrubHeader
                 $at = Get-ActiveToggles
-                Invoke-FaxCustom -Toggles $at -DryRun $true
-                $hist = Get-FaxHistory
-                Save-FaxHistory -History $hist -Keys ($at.Keys | Where-Object { $at[$_] })
+                Invoke-ScrubCustom -Toggles $at -DryRun $true
+                $hist = Get-ScrubHistory
+                Save-ScrubHistory -History $hist -Keys ($at.Keys | Where-Object { $at[$_] })
                 Open-LatestReport
                 Write-Host ""
-                Read-Host "  $($script:FaxStr.PRESS_ENTER_MENU)" | Out-Null
+                Read-Host "  $($script:ScrubStr.PRESS_ENTER_MENU)" | Out-Null
             }
 
             "3" {
-                Write-FaxHeader
-                $c = Read-Host "  $($script:FaxStr.CONFIRM_LIVE -f $script:FaxStr.CONFIRM_WORD)"
-                if ($c -ne $script:FaxStr.CONFIRM_WORD) {
-                    Write-Host "  $($script:FaxStr.CANCELED)" -ForegroundColor Yellow
+                Write-ScrubHeader
+                $c = Read-Host "  $($script:ScrubStr.CONFIRM_LIVE -f $script:ScrubStr.CONFIRM_WORD)"
+                if ($c -ne $script:ScrubStr.CONFIRM_WORD) {
+                    Write-Host "  $($script:ScrubStr.CANCELED)" -ForegroundColor Yellow
                     Start-Sleep -Seconds 1
                     continue
                 }
-                Write-FaxHeader
+                Write-ScrubHeader
                 $at = Get-ActiveToggles
-                Invoke-FaxCustom -Toggles $at -DryRun $false
-                $hist = Get-FaxHistory
-                Save-FaxHistory -History $hist -Keys ($at.Keys | Where-Object { $at[$_] })
+                Invoke-ScrubCustom -Toggles $at -DryRun $false
+                $hist = Get-ScrubHistory
+                Save-ScrubHistory -History $hist -Keys ($at.Keys | Where-Object { $at[$_] })
                 Open-LatestReport
                 Write-Host ""
-                Read-Host "  $($script:FaxStr.PRESS_ENTER_MENU)" | Out-Null
+                Read-Host "  $($script:ScrubStr.PRESS_ENTER_MENU)" | Out-Null
             }
 
             "4" {
                 $toggles = Show-ModuleSelector
                 if ($null -eq $toggles) { continue }
 
-                Write-FaxHeader
-                Write-Host "  $($script:FaxStr.SPEC_DRY)" -ForegroundColor White
-                Write-Host "  $($script:FaxStr.SPEC_LIVE)" -ForegroundColor Yellow
-                Write-Host "  $($script:FaxStr.SPEC_CANCEL)"
+                Write-ScrubHeader
+                Write-Host "  $($script:ScrubStr.SPEC_DRY)" -ForegroundColor White
+                Write-Host "  $($script:ScrubStr.SPEC_LIVE)" -ForegroundColor Yellow
+                Write-Host "  $($script:ScrubStr.SPEC_CANCEL)"
                 Write-Host ""
 
-                $mode = (Read-Host "  $($script:FaxStr.SPEC_MODE)").Trim().ToUpper()
-                if ($mode -eq $script:FaxStr.SPEC_CANCEL_CHR) { continue }
+                $mode = (Read-Host "  $($script:ScrubStr.SPEC_MODE)").Trim().ToUpper()
+                if ($mode -eq $script:ScrubStr.SPEC_CANCEL_CHR) { continue }
 
                 $dry = ($mode -ne "L")
                 if (-not $dry) {
-                    $c = Read-Host "  $($script:FaxStr.CONFIRM_LIVE -f $script:FaxStr.CONFIRM_WORD)"
-                    if ($c -ne $script:FaxStr.CONFIRM_WORD) {
-                        Write-Host "  $($script:FaxStr.CANCELED)" -ForegroundColor Yellow
+                    $c = Read-Host "  $($script:ScrubStr.CONFIRM_LIVE -f $script:ScrubStr.CONFIRM_WORD)"
+                    if ($c -ne $script:ScrubStr.CONFIRM_WORD) {
+                        Write-Host "  $($script:ScrubStr.CANCELED)" -ForegroundColor Yellow
                         Start-Sleep -Seconds 1
                         continue
                     }
                 }
 
-                Write-FaxHeader
-                Invoke-FaxCustom -Toggles $toggles -DryRun $dry
-                $hist = Get-FaxHistory
-                Save-FaxHistory -History $hist -Keys ($toggles.Keys | Where-Object { $toggles[$_] })
+                Write-ScrubHeader
+                Invoke-ScrubCustom -Toggles $toggles -DryRun $dry
+                $hist = Get-ScrubHistory
+                Save-ScrubHistory -History $hist -Keys ($toggles.Keys | Where-Object { $toggles[$_] })
                 Open-LatestReport
                 Write-Host ""
-                Read-Host "  $($script:FaxStr.PRESS_ENTER_MENU)" | Out-Null
+                Read-Host "  $($script:ScrubStr.PRESS_ENTER_MENU)" | Out-Null
             }
 
             "5" {
@@ -1152,11 +1152,11 @@ function Show-Menu {
                 $diag["disk_optimize"]        = $true
                 $diag["software_audit"]       = $true
 
-                Write-FaxHeader
-                Invoke-FaxCustom -Toggles $diag -DryRun $true
+                Write-ScrubHeader
+                Invoke-ScrubCustom -Toggles $diag -DryRun $true
                 Open-LatestReport
                 Write-Host ""
-                Read-Host "  $($script:FaxStr.PRESS_ENTER_MENU)" | Out-Null
+                Read-Host "  $($script:ScrubStr.PRESS_ENTER_MENU)" | Out-Null
             }
 
             "6" { Show-StartupManager }
@@ -1167,32 +1167,32 @@ function Show-Menu {
 
             "9" { Show-ModuleConfig }
 
-            "i" { Switch-FaxLanguage }
+            "i" { Switch-ScrubLanguage }
 
             "a" {
-                Write-FaxHeader
+                Write-ScrubHeader
                 $taskName = "Scrub_Daily"
                 $existing = Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue
 
                 if ($existing) {
-                    Write-Host "  $($script:FaxStr.SCHED_CURRENT) $taskName" -ForegroundColor White
-                    Write-Host "  $($script:FaxStr.SCHED_STATUS) $($existing.State)  $($script:FaxStr.SCHED_NEXT_RUN) $((Get-ScheduledTaskInfo -TaskName $taskName).NextRunTime)" -ForegroundColor Gray
+                    Write-Host "  $($script:ScrubStr.SCHED_CURRENT) $taskName" -ForegroundColor White
+                    Write-Host "  $($script:ScrubStr.SCHED_STATUS) $($existing.State)  $($script:ScrubStr.SCHED_NEXT_RUN) $((Get-ScheduledTaskInfo -TaskName $taskName).NextRunTime)" -ForegroundColor Gray
                     Write-Host ""
-                    Write-Host "  [R] $($script:FaxStr.SCHED_REMOVE)   [Q] $($script:FaxStr.BACK)"
+                    Write-Host "  [R] $($script:ScrubStr.SCHED_REMOVE)   [Q] $($script:ScrubStr.BACK)"
                     Write-Host ""
                     $sub = (Read-Host "  >").Trim().ToUpper()
                     if ($sub -eq "R") {
                         Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
-                        Write-Host "  $($script:FaxStr.SCHED_REMOVED)" -ForegroundColor Yellow
+                        Write-Host "  $($script:ScrubStr.SCHED_REMOVED)" -ForegroundColor Yellow
                         Start-Sleep -Seconds 1
                     }
                 } else {
-                    Write-Host "  $($script:FaxStr.SCHED_CREATE)" -ForegroundColor White
-                    Write-Host "  $($script:FaxStr.SCHED_HINT)" -ForegroundColor DarkGray
+                    Write-Host "  $($script:ScrubStr.SCHED_CREATE)" -ForegroundColor White
+                    Write-Host "  $($script:ScrubStr.SCHED_HINT)" -ForegroundColor DarkGray
                     Write-Host ""
-                    $hora = (Read-Host "  $($script:FaxStr.SCHED_TIME_PROMPT)").Trim()
+                    $hora = (Read-Host "  $($script:ScrubStr.SCHED_TIME_PROMPT)").Trim()
                     if ($hora -notmatch '^\d{2}:\d{2}$') {
-                        Write-Host "  $($script:FaxStr.SCHED_TIME_ERR)" -ForegroundColor Yellow
+                        Write-Host "  $($script:ScrubStr.SCHED_TIME_ERR)" -ForegroundColor Yellow
                         Start-Sleep -Seconds 1
                         continue
                     }
@@ -1202,26 +1202,26 @@ function Show-Menu {
                         $trigger  = New-ScheduledTaskTrigger -Daily -At $hora
                         $settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -WakeToRun:$false -RunOnlyIfNetworkAvailable:$false
                         Register-ScheduledTask -TaskName $taskName -Action $action -Trigger $trigger -Settings $settings -Force | Out-Null
-                        Write-Host "  $($script:FaxStr.SCHED_OK -f $hora)" -ForegroundColor Green
+                        Write-Host "  $($script:ScrubStr.SCHED_OK -f $hora)" -ForegroundColor Green
                     } catch {
-                        Write-Host "  $($script:FaxStr.SCHED_FAIL) $($_.Exception.Message)" -ForegroundColor Red
+                        Write-Host "  $($script:ScrubStr.SCHED_FAIL) $($_.Exception.Message)" -ForegroundColor Red
                     }
                     Start-Sleep -Seconds 2
                 }
             }
 
             "b" {
-                Write-FaxHeader
-                $c = Read-Host "  $($script:FaxStr.UNINSTALL_CONFIRM) ($($script:FaxStr.CONFIRM_WORD)/N)"
-                if ($c -ne $script:FaxStr.CONFIRM_WORD) {
-                    Write-Host "  $($script:FaxStr.CANCELED)" -ForegroundColor Yellow
+                Write-ScrubHeader
+                $c = Read-Host "  $($script:ScrubStr.UNINSTALL_CONFIRM) ($($script:ScrubStr.CONFIRM_WORD)/N)"
+                if ($c -ne $script:ScrubStr.CONFIRM_WORD) {
+                    Write-Host "  $($script:ScrubStr.CANCELED)" -ForegroundColor Yellow
                     Start-Sleep -Seconds 1
                     continue
                 }
                 & powershell.exe -NoLogo -ExecutionPolicy RemoteSigned `
                     -File (Join-Path $moduleRoot "Install-Scrub.ps1") -Uninstall
                 Write-Host ""
-                Read-Host "  $($script:FaxStr.UNINSTALL_EXIT)" | Out-Null
+                Read-Host "  $($script:ScrubStr.UNINSTALL_EXIT)" | Out-Null
                 return
             }
 
@@ -1239,16 +1239,16 @@ if ($Watch.IsPresent) {
         Invoke-Scrub -ConfigPath $ConfigPath -DryRun $true
         Open-LatestReport
     } elseif ($Live) {
-        $c = Read-Host "`n  $($script:FaxStr.CONFIRM_LIVE -f $script:FaxStr.CONFIRM_WORD)"
-        if ($c -ne $script:FaxStr.CONFIRM_WORD) { Write-Host "  $($script:FaxStr.ABORTED)" -ForegroundColor Yellow; return }
+        $c = Read-Host "`n  $($script:ScrubStr.CONFIRM_LIVE -f $script:ScrubStr.CONFIRM_WORD)"
+        if ($c -ne $script:ScrubStr.CONFIRM_WORD) { Write-Host "  $($script:ScrubStr.ABORTED)" -ForegroundColor Yellow; return }
         Invoke-Scrub -ConfigPath $ConfigPath -DryRun $false
         Open-LatestReport
     } else {
         Invoke-Scrub -ConfigPath $ConfigPath -DryRun $true
         Open-LatestReport
     }
-    $hist = Get-FaxHistory
-    Save-FaxHistory -History $hist -Keys ($script:CATALOG | Where-Object { [bool](Read-FaxConfig).modules.($_.Key) } | ForEach-Object { $_.Key })
+    $hist = Get-ScrubHistory
+    Save-ScrubHistory -History $hist -Keys ($script:CATALOG | Where-Object { [bool](Read-ScrubConfig).modules.($_.Key) } | ForEach-Object { $_.Key })
 } else {
     Show-Menu
 }

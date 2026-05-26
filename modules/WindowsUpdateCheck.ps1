@@ -1,4 +1,4 @@
-function Invoke-WindowsUpdateCheck {
+﻿function Invoke-WindowsUpdateCheck {
     param(
         [bool]   $DryRun  = $true,
         [string] $LogPath = ""
@@ -56,6 +56,6 @@ function Invoke-WindowsUpdateCheck {
         }
     }
 
-    if ($LogPath) { Write-FaxLog -LogPath $LogPath -Entry $result }
+    if ($LogPath) { Write-ScrubLog -LogPath $LogPath -Entry $result }
     return $result
 }

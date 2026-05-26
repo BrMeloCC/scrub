@@ -1,4 +1,4 @@
-function Get-DuplicateFiles {
+﻿function Get-DuplicateFiles {
     param(
         [string[]] $ScanPaths  = @(),
         [int]      $MinSizeKB  = 100,
@@ -87,7 +87,7 @@ function Get-DuplicateFiles {
 
     $result.Items = $result.Items | Sort-Object WastedMB -Descending
 
-    if ($LogPath) { Write-FaxLog -LogPath $LogPath -Entry $result }
+    if ($LogPath) { Write-ScrubLog -LogPath $LogPath -Entry $result }
     return $result
 }
 
@@ -163,6 +163,6 @@ function Invoke-WindowsUpdateCacheClean {
         }
     }
 
-    if ($LogPath) { Write-FaxLog -LogPath $LogPath -Entry $result }
+    if ($LogPath) { Write-ScrubLog -LogPath $LogPath -Entry $result }
     return $result
 }

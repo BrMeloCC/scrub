@@ -1,4 +1,4 @@
-$DEV_CLEAN_TARGETS = @(
+﻿$DEV_CLEAN_TARGETS = @(
     "node_modules", ".venv", "venv", "__pycache__", ".pytest_cache",
     "target",                         # Rust / Maven
     "bin", "obj",                     # .NET
@@ -28,7 +28,7 @@ function Invoke-DevProjectClean {
     }
 
     if (-not $ScanPaths -or $ScanPaths.Count -eq 0) {
-        if ($LogPath) { Write-FaxLog -LogPath $LogPath -Entry $result }
+        if ($LogPath) { Write-ScrubLog -LogPath $LogPath -Entry $result }
         return $result
     }
 
@@ -118,6 +118,6 @@ function Invoke-DevProjectClean {
     $result.Projects = [System.Collections.Generic.List[object]](
         $result.Projects | Sort-Object HeavyBytes -Descending)
 
-    if ($LogPath) { Write-FaxLog -LogPath $LogPath -Entry $result }
+    if ($LogPath) { Write-ScrubLog -LogPath $LogPath -Entry $result }
     return $result
 }

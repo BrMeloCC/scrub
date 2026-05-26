@@ -1,4 +1,4 @@
-function Get-FolderTree {
+﻿function Get-FolderTree {
     param(
         [string] $Path,
         [int]    $MaxDepth = 1
@@ -26,7 +26,7 @@ function Get-FolderTree {
         } catch {}
 
         foreach ($d in $rootInfo.EnumerateDirectories()) {
-            $lbl = if ($script:FaxStr -and $script:FaxStr.FOLD_CHECKING) { $script:FaxStr.FOLD_CHECKING } else { "verificando" }
+            $lbl = if ($script:ScrubStr -and $script:ScrubStr.FOLD_CHECKING) { $script:ScrubStr.FOLD_CHECKING } else { "verificando" }
             Write-Host "`r  $lbl $($d.Name)...                              " -NoNewline -ForegroundColor DarkGray
             $bytes = 0L
             try {

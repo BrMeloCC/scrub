@@ -1,4 +1,4 @@
-function Get-StartupAudit {
+﻿function Get-StartupAudit {
     param(
         [string] $LogPath = ""
     )
@@ -94,7 +94,7 @@ function Get-StartupAudit {
         $result.Errors.Add("TASKS_FAILED: $($_.Exception.Message)")
     }
 
-    if ($LogPath) { Write-FaxLog -LogPath $LogPath -Entry $result }
+    if ($LogPath) { Write-ScrubLog -LogPath $LogPath -Entry $result }
     return $result
 }
 

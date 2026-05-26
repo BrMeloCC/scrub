@@ -1,4 +1,4 @@
-function Get-SoftwareAudit {
+﻿function Get-SoftwareAudit {
     param(
         [int]    $LastDays = 30,
         [string] $LogPath  = ""
@@ -65,6 +65,6 @@ function Get-SoftwareAudit {
 
     $result.Items = [System.Collections.Generic.List[object]]($result.Items | Sort-Object InstallDate -Descending)
 
-    if ($LogPath) { Write-FaxLog -LogPath $LogPath -Entry $result }
+    if ($LogPath) { Write-ScrubLog -LogPath $LogPath -Entry $result }
     return $result
 }

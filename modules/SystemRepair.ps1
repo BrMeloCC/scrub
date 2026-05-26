@@ -1,4 +1,4 @@
-function Invoke-SystemRepair {
+﻿function Invoke-SystemRepair {
     param(
         [bool]   $DryRun  = $true,
         [string] $LogPath = ""
@@ -18,7 +18,7 @@ function Invoke-SystemRepair {
 
     if (-not $result.IsAdmin) {
         $result.Errors.Add("REQUIRES_ADMIN")
-        if ($LogPath) { Write-FaxLog -LogPath $LogPath -Entry $result }
+        if ($LogPath) { Write-ScrubLog -LogPath $LogPath -Entry $result }
         return $result
     }
 
@@ -62,6 +62,6 @@ function Invoke-SystemRepair {
         $result.Errors.Add("DISM_FAILED: $($_.Exception.Message)")
     }
 
-    if ($LogPath) { Write-FaxLog -LogPath $LogPath -Entry $result }
+    if ($LogPath) { Write-ScrubLog -LogPath $LogPath -Entry $result }
     return $result
 }

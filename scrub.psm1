@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 
 $MODULE_ROOT = if ($PSScriptRoot) { $PSScriptRoot } else { Split-Path -Parent $MyInvocation.MyCommand.Path }
 
@@ -9,7 +9,7 @@ foreach ($mod in @("TempCleaner", "RecycleBin", "DiskReport", "BrowserCache", "L
 
 # -- Internal helpers ----------------------------------------------------------
 
-function Write-FaxLog {
+function Write-ScrubLog {
     param([string] $LogPath, [object] $Entry)
     if (-not $LogPath -or -not (Test-Path (Split-Path $LogPath))) { return }
     $line = [PSCustomObject]@{
@@ -20,7 +20,7 @@ function Write-FaxLog {
     Add-Content -Path $LogPath -Value $line -Encoding UTF8
 }
 
-function ConvertTo-FaxBytes {
+function ConvertTo-ScrubBytes {
     param([long] $Bytes)
     if ($Bytes -ge 1GB) { return "$([math]::Round($Bytes/1GB,2)) GB" }
     if ($Bytes -ge 1MB) { return "$([math]::Round($Bytes/1MB,1)) MB" }
@@ -28,7 +28,7 @@ function ConvertTo-FaxBytes {
     return "$Bytes B"
 }
 
-function Import-FaxConfig {
+function Import-ScrubConfig {
     param([string] $ConfigPath)
     $defaults = ConvertFrom-Json -InputObject (Get-Content (Join-Path $MODULE_ROOT "config.json") -Raw)
     if ($ConfigPath -and (Test-Path $ConfigPath)) {
@@ -67,7 +67,7 @@ function Invoke-Scrub {
         [switch] $NoReport
     )
 
-    $cfg    = Import-FaxConfig -ConfigPath $ConfigPath
+    $cfg    = Import-ScrubConfig -ConfigPath $ConfigPath
     $logDir = if ($cfg.log_dir)    { $cfg.log_dir }    else { Join-Path $MODULE_ROOT "logs" }
     $repDir = if ($cfg.report_dir) { $cfg.report_dir } else { Join-Path $MODULE_ROOT "reports" }
 
@@ -126,12 +126,12 @@ function Invoke-Scrub {
         $r = Invoke-HibernationClean -DryRun $DryRun -LogPath $logPath
         $results["HiberfileCleaner"] = $r
         if ($r.Disabled) {
-            Write-Host " disabled -- $(ConvertTo-FaxBytes $r.FileSizeBytes) freed" -ForegroundColor Green
+            Write-Host " disabled -- $(ConvertTo-ScrubBytes $r.FileSizeBytes) freed" -ForegroundColor Green
         } elseif ($r.HibernateEnabled -or $r.FastStartupOn -or $r.FileSizeBytes -gt 0) {
             $flags = @()
             if ($r.HibernateEnabled) { $flags += "hibernate" }
             if ($r.FastStartupOn)    { $flags += "fast startup" }
-            Write-Host " active ($($flags -join ' + ')) -- $(ConvertTo-FaxBytes $r.FileSizeBytes) recoverable" -ForegroundColor Yellow
+            Write-Host " active ($($flags -join ' + ')) -- $(ConvertTo-ScrubBytes $r.FileSizeBytes) recoverable" -ForegroundColor Yellow
             foreach ($err in $r.Errors) { Write-Host "    $err" -ForegroundColor DarkGray }
         } else {
             Write-Host " already off" -ForegroundColor Gray
@@ -166,7 +166,7 @@ function Invoke-Scrub {
         $r = Invoke-TempCleaner -MinAgeDays $cfg.min_age_days.temp_files -DryRun $DryRun -LogPath $logPath
         $results["TempCleaner"] = $r
         $sz = 0L; foreach ($item in $r.Items) { $sz += $item.SizeBytes }
-        $label = if ($DryRun) { "would free $(ConvertTo-FaxBytes $sz)" } else { "freed $(ConvertTo-FaxBytes $r.BytesFreed)" }
+        $label = if ($DryRun) { "would free $(ConvertTo-ScrubBytes $sz)" } else { "freed $(ConvertTo-ScrubBytes $r.BytesFreed)" }
         Write-Host " $($r.FilesFound) files -- $label" -ForegroundColor Gray
     }
 
@@ -190,7 +190,7 @@ function Invoke-Scrub {
         $r = Invoke-BrowserCacheClean -Browsers $browsers -MinAgeDays $cfg.min_age_days.browser_cache -DryRun $DryRun -LogPath $logPath
         $results["BrowserCache"] = $r
         $sz = 0L; foreach ($item in $r.Items) { $sz += $item.SizeBytes }
-        $label = if ($DryRun) { "would free $(ConvertTo-FaxBytes $sz)" } else { "freed $(ConvertTo-FaxBytes $r.BytesFreed)" }
+        $label = if ($DryRun) { "would free $(ConvertTo-ScrubBytes $sz)" } else { "freed $(ConvertTo-ScrubBytes $r.BytesFreed)" }
         Write-Host " $($r.FilesFound) files -- $label" -ForegroundColor Gray
     }
 
@@ -257,7 +257,7 @@ function Invoke-Scrub {
         $r = Invoke-SystemLogClean -DryRun $DryRun -LogPath $logPath
         $results["SystemLogClean"] = $r
         $sz = 0L; foreach ($item in $r.Items) { $sz += $item.SizeBytes }
-        $label = if ($DryRun) { "would free $(ConvertTo-FaxBytes $sz)" } else { "freed $(ConvertTo-FaxBytes $r.BytesFreed)" }
+        $label = if ($DryRun) { "would free $(ConvertTo-ScrubBytes $sz)" } else { "freed $(ConvertTo-ScrubBytes $r.BytesFreed)" }
         Write-Host " $($r.FilesFound) files -- $label" -ForegroundColor Gray
         $adminErrors = $r.Errors | Where-Object { $_ -like "REQUIRES_ADMIN*" } | Select-Object -First 1
         if ($adminErrors) { Write-Host "    (some files need admin)" -ForegroundColor DarkGray }
@@ -272,7 +272,7 @@ function Invoke-Scrub {
             Write-Host " none found (npm/yarn/pnpm not installed)" -ForegroundColor DarkGray
         } else {
             $sz = 0L; foreach ($item in $r.Items) { $sz += $item.SizeBytes }
-            $label = if ($DryRun) { "would free $(ConvertTo-FaxBytes $sz)" } else { "freed $(ConvertTo-FaxBytes $r.BytesFreed)" }
+            $label = if ($DryRun) { "would free $(ConvertTo-ScrubBytes $sz)" } else { "freed $(ConvertTo-ScrubBytes $r.BytesFreed)" }
             Write-Host " $($r.Items.Count) manager(s) -- $label" -ForegroundColor Gray
         }
     }
@@ -340,7 +340,7 @@ function Invoke-Scrub {
         } else {
             $due = $r.Projects | Where-Object { $_.IsDue }
             $sz = 0L; foreach ($proj in $due) { $sz += $proj.HeavyBytes }
-            $label = if ($DryRun) { "would free $(ConvertTo-FaxBytes $sz)" } else { "freed $(ConvertTo-FaxBytes $r.BytesFreed)" }
+            $label = if ($DryRun) { "would free $(ConvertTo-ScrubBytes $sz)" } else { "freed $(ConvertTo-ScrubBytes $r.BytesFreed)" }
             Write-Host " $($r.Projects.Count) projetos, $($due.Count) devidos -- $label" -ForegroundColor Gray
         }
     }
@@ -363,7 +363,7 @@ function Invoke-Scrub {
             Write-Host " $($r.Errors[0])" -ForegroundColor Yellow
         } else {
             $sz = 0L; foreach ($item in $r.Items) { $sz += $item.SizeBytes }
-            $label = if ($DryRun) { "would free $(ConvertTo-FaxBytes $sz)" } else { "freed $(ConvertTo-FaxBytes $r.BytesFreed)" }
+            $label = if ($DryRun) { "would free $(ConvertTo-ScrubBytes $sz)" } else { "freed $(ConvertTo-ScrubBytes $r.BytesFreed)" }
             Write-Host " $label" -ForegroundColor Gray
         }
     }
@@ -384,7 +384,7 @@ function Invoke-Scrub {
     # -- HTML Report --
     if (-not $NoReport) {
         $reportPath = Join-Path $repDir "report_$(Get-Date -Format 'yyyyMMdd_HHmmss').html"
-        Write-FaxHtmlReport -Results $results -ReportPath $reportPath -DryRun $DryRun
+        Write-ScrubHtmlReport -Results $results -ReportPath $reportPath -DryRun $DryRun
     }
 
     Write-Host ""

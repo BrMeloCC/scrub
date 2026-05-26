@@ -1,4 +1,4 @@
-function Get-DiskReport {
+﻿function Get-DiskReport {
     param(
         [int]    $AlertUsagePct = 85,
         [string] $LogPath       = ""
@@ -38,7 +38,7 @@ function Get-DiskReport {
         $result.Errors.Add("DISK_REPORT_ERROR: $($_.Exception.Message)")
     }
 
-    if ($LogPath) { Write-FaxLog -LogPath $LogPath -Entry $result }
+    if ($LogPath) { Write-ScrubLog -LogPath $LogPath -Entry $result }
     return $result
 }
 
@@ -91,6 +91,6 @@ function Get-DiskHealth {
         # WMI SMART query requires admin; silently skip if unavailable
     }
 
-    if ($LogPath) { Write-FaxLog -LogPath $LogPath -Entry $result }
+    if ($LogPath) { Write-ScrubLog -LogPath $LogPath -Entry $result }
     return $result
 }

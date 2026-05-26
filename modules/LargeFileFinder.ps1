@@ -1,4 +1,4 @@
-function Get-LargeFiles {
+﻿function Get-LargeFiles {
     param(
         [int]    $ThresholdMB = 100,
         [int]    $Limit       = 50,
@@ -55,7 +55,7 @@ function Get-LargeFiles {
     $result.TotalSizeGB = [math]::Round(($sorted | Measure-Object -Property SizeBytes -Sum).Sum / 1GB, 2)
     foreach ($item in $sorted) { $result.Items.Add($item) }
 
-    if ($LogPath) { Write-FaxLog -LogPath $LogPath -Entry $result }
+    if ($LogPath) { Write-ScrubLog -LogPath $LogPath -Entry $result }
     return $result
 }
 
@@ -120,6 +120,6 @@ function Get-DownloadsAudit {
         $result.Errors.Add("DOWNLOADS_SCAN_FAILED: $($_.Exception.Message)")
     }
 
-    if ($LogPath) { Write-FaxLog -LogPath $LogPath -Entry $result }
+    if ($LogPath) { Write-ScrubLog -LogPath $LogPath -Entry $result }
     return $result
 }

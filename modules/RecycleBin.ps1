@@ -1,4 +1,4 @@
-function Invoke-RecycleBinCleaner {
+﻿function Invoke-RecycleBinCleaner {
     param(
         [int]    $MinAgeDays = 30,
         [bool]   $DryRun     = $true,
@@ -60,6 +60,6 @@ function Invoke-RecycleBinCleaner {
         }
     }
 
-    if ($LogPath) { Write-FaxLog -LogPath $LogPath -Entry $result }
+    if ($LogPath) { Write-ScrubLog -LogPath $LogPath -Entry $result }
     return $result
 }

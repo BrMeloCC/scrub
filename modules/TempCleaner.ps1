@@ -1,4 +1,4 @@
-# Safe temp directories -- hardcoded whitelist, never expanded from config
+﻿# Safe temp directories -- hardcoded whitelist, never expanded from config
 $SAFE_TEMP_PATHS = @(
     [System.Environment]::GetEnvironmentVariable("TEMP", "User"),
     [System.Environment]::GetEnvironmentVariable("TMP",  "User"),
@@ -88,6 +88,6 @@ function Invoke-TempCleaner {
         }
     }
 
-    if ($LogPath) { Write-FaxLog -LogPath $LogPath -Entry $result }
+    if ($LogPath) { Write-ScrubLog -LogPath $LogPath -Entry $result }
     return $result
 }

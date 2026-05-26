@@ -1,4 +1,4 @@
-function Invoke-RestorePoint {
+﻿function Invoke-RestorePoint {
     param(
         [bool]   $DryRun  = $true,
         [string] $LogPath = ""
@@ -26,13 +26,13 @@ function Invoke-RestorePoint {
     } catch { }
 
     if ($DryRun) {
-        if ($LogPath) { Write-FaxLog -LogPath $LogPath -Entry $result }
+        if ($LogPath) { Write-ScrubLog -LogPath $LogPath -Entry $result }
         return $result
     }
 
     if (-not $result.IsAdmin) {
         $result.Errors.Add("REQUIRES_ADMIN")
-        if ($LogPath) { Write-FaxLog -LogPath $LogPath -Entry $result }
+        if ($LogPath) { Write-ScrubLog -LogPath $LogPath -Entry $result }
         return $result
     }
 
@@ -51,6 +51,6 @@ function Invoke-RestorePoint {
         }
     }
 
-    if ($LogPath) { Write-FaxLog -LogPath $LogPath -Entry $result }
+    if ($LogPath) { Write-ScrubLog -LogPath $LogPath -Entry $result }
     return $result
 }

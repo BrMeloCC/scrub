@@ -1,4 +1,4 @@
-function Invoke-NodeCacheClean {
+﻿function Invoke-NodeCacheClean {
     param(
         [bool]   $DryRun  = $true,
         [string] $LogPath = ""
@@ -59,6 +59,6 @@ function Invoke-NodeCacheClean {
         }
     }
 
-    if ($LogPath) { Write-FaxLog -LogPath $LogPath -Entry $result }
+    if ($LogPath) { Write-ScrubLog -LogPath $LogPath -Entry $result }
     return $result
 }

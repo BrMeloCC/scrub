@@ -1,4 +1,4 @@
-# Cache paths per browser -- versioned subfolders handled by scanning at runtime
+﻿# Cache paths per browser -- versioned subfolders handled by scanning at runtime
 $BROWSER_CACHE_MAP = @{
     chrome  = @(
         "$env:LOCALAPPDATA\Google\Chrome\User Data\Default\Cache\Cache_Data",
@@ -85,6 +85,6 @@ function Invoke-BrowserCacheClean {
         }
     }
 
-    if ($LogPath) { Write-FaxLog -LogPath $LogPath -Entry $result }
+    if ($LogPath) { Write-ScrubLog -LogPath $LogPath -Entry $result }
     return $result
 }

@@ -1,4 +1,4 @@
-$script:FaxStr = @{
+﻿$script:ScrubStr = @{
     # Cabecalho
     APP_NAME        = "Scrub"
     APP_TAGLINE     = "Manutencao de disco para Windows"

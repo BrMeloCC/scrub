@@ -1,4 +1,4 @@
-function Get-EventLogScan {
+﻿function Get-EventLogScan {
     param(
         [int]    $LastDays  = 7,
         [int]    $MaxEvents = 500,
@@ -67,6 +67,6 @@ function Get-EventLogScan {
         })
     }
 
-    if ($LogPath) { Write-FaxLog -LogPath $LogPath -Entry $result }
+    if ($LogPath) { Write-ScrubLog -LogPath $LogPath -Entry $result }
     return $result
 }

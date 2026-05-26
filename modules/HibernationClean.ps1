@@ -1,4 +1,4 @@
-function Invoke-HibernationClean {
+﻿function Invoke-HibernationClean {
     param(
         [bool]   $DryRun  = $true,
         [string] $LogPath = ""
@@ -30,7 +30,7 @@ function Invoke-HibernationClean {
 
     # Nothing actionable if hibernate is fully off and no file exists
     if (-not $result.HibernateEnabled -and -not $result.FastStartupOn -and $result.FileSizeBytes -eq 0) {
-        if ($LogPath) { Write-FaxLog -LogPath $LogPath -Entry $result }
+        if ($LogPath) { Write-ScrubLog -LogPath $LogPath -Entry $result }
         return $result
     }
 
@@ -55,6 +55,6 @@ function Invoke-HibernationClean {
         }
     }
 
-    if ($LogPath) { Write-FaxLog -LogPath $LogPath -Entry $result }
+    if ($LogPath) { Write-ScrubLog -LogPath $LogPath -Entry $result }
     return $result
 }

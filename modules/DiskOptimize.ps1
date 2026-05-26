@@ -1,4 +1,4 @@
-function Invoke-DiskOptimize {
+﻿function Invoke-DiskOptimize {
     param(
         [bool]   $DryRun  = $true,
         [string] $LogPath = ""
@@ -75,6 +75,6 @@ function Invoke-DiskOptimize {
         $result.Errors.Add("DISK_OPTIMIZE_ERROR: $($_.Exception.Message)")
     }
 
-    if ($LogPath) { Write-FaxLog -LogPath $LogPath -Entry $result }
+    if ($LogPath) { Write-ScrubLog -LogPath $LogPath -Entry $result }
     return $result
 }

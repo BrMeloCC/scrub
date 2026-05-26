@@ -1,4 +1,4 @@
-function Get-DriverAudit {
+﻿function Get-DriverAudit {
     param(
         [bool]   $DryRun  = $true,
         [string] $LogPath = ""
@@ -51,6 +51,6 @@ function Get-DriverAudit {
         $result.Errors.Add("DRIVER_AUDIT_ERROR: $($_.Exception.Message)")
     }
 
-    if ($LogPath) { Write-FaxLog -LogPath $LogPath -Entry $result }
+    if ($LogPath) { Write-ScrubLog -LogPath $LogPath -Entry $result }
     return $result
 }

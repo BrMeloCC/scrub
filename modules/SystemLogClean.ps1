@@ -1,4 +1,4 @@
-function Invoke-SystemLogClean {
+﻿function Invoke-SystemLogClean {
     param(
         [bool]   $DryRun  = $true,
         [string] $LogPath = ""
@@ -126,6 +126,6 @@ function Invoke-SystemLogClean {
         $result.Items.Add($entry)
     }
 
-    if ($LogPath) { Write-FaxLog -LogPath $LogPath -Entry $result }
+    if ($LogPath) { Write-ScrubLog -LogPath $LogPath -Entry $result }
     return $result
 }

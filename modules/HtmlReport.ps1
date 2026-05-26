@@ -1,4 +1,4 @@
-function Write-FaxHtmlReport {
+﻿function Write-ScrubHtmlReport {
     param(
         [hashtable] $Results,
         [string]    $ReportPath,

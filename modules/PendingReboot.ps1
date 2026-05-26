@@ -1,4 +1,4 @@
-function Get-PendingRebootCheck {
+﻿function Get-PendingRebootCheck {
     param([string] $LogPath = "")
 
     $result = [PSCustomObject]@{
@@ -28,6 +28,6 @@ function Get-PendingRebootCheck {
         }
     }
 
-    if ($LogPath) { Write-FaxLog -LogPath $LogPath -Entry $result }
+    if ($LogPath) { Write-ScrubLog -LogPath $LogPath -Entry $result }
     return $result
 }
