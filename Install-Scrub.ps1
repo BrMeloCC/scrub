@@ -75,7 +75,7 @@ Write-Host "`n Scrub - Install`n" -ForegroundColor Cyan
 # 1. Create scrub.cmd launcher in the tool directory
 $cmdLines = @(
     "@echo off"
-    "powershell.exe -NoLogo -ExecutionPolicy RemoteSigned -File `"$installRoot\Run-Scrub.ps1`" %*"
+    "powershell.exe -NoLogo -ExecutionPolicy RemoteSigned -File `"%~dp0Run-Scrub.ps1`" %*"
 )
 [System.IO.File]::WriteAllLines($launcherPath, $cmdLines, [System.Text.Encoding]::ASCII)
 Write-Ok "Created launcher: $launcherPath"

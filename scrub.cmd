@@ -1,2 +1,2 @@
 @echo off
-powershell.exe -NoLogo -ExecutionPolicy RemoteSigned -File "C:\DEV\scrub\Run-Scrub.ps1" %*
+powershell.exe -NoLogo -ExecutionPolicy RemoteSigned -File "%~dp0Run-Scrub.ps1" %*
