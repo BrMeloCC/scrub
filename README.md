@@ -31,28 +31,23 @@ scrub -ReportOnly  # analysis only, opens HTML report
 
 **1. Download** the latest [release](https://github.com/BrMeloCC/scrub/releases) and extract it anywhere.
 
-**2. Run directly** — no installation needed:
+**2. Install** by double-clicking `setup.cmd` — no admin required.
+
+Open a **new terminal** after installing, then:
 
 ```
-scrub.cmd
+scrub              # dry run — analyzes, deletes nothing
+scrub -Live        # live mode — asks confirmation before deleting
+scrub -ReportOnly  # analysis only, opens HTML report
 ```
 
-Or run with flags:
+To uninstall: `setup.cmd -Uninstall`
 
-```powershell
-.\Run-Scrub.ps1 -NoMenu
-.\Run-Scrub.ps1 -Live
-```
-
-**3. Optional: install** to use `scrub` from any terminal (no admin required):
-
-```powershell
-.\Install-Scrub.ps1
-```
-
-The installer adds the tool directory to your user PATH, registers the PowerShell module, and creates a Start Menu shortcut. Open a **new terminal** after installing.
-
-To uninstall: `.\Install-Scrub.ps1 -Uninstall`
+> **Run without installing:** double-click `scrub.cmd` directly, or:
+> ```powershell
+> .\Run-Scrub.ps1 -NoMenu
+> .\Run-Scrub.ps1 -Live
+> ```
 
 ---
 
@@ -85,7 +80,7 @@ To uninstall: `.\Install-Scrub.ps1 -Uninstall`
   [7]  Folder analyzer        interactive disk usage explorer
   [8]  History                progress charts and score over time
 
-  [9]  Configure modules      enable/disable, frequency and estimated time
+  [9]  Configure modules      enable/disable with last-run info and estimated time
   [A]  Schedule daily run
   [B]  Uninstall
   [I]  Idioma / Language      switch between Portuguese and English
@@ -104,6 +99,17 @@ Displayed at the top of every run. Trend arrow (↑↓→) shows change from the
 | Pending Windows Updates | 15 |
 | Pending reboot | 10 |
 | Problematic drivers | 10 |
+
+### Module Selection
+
+The **Specific routine [4]** and **Configure modules [9]** menus share a common module picker:
+
+- Type a number to toggle a module on/off
+- Type multiple numbers separated by spaces to toggle several at once — e.g. `2 3 5`
+- `a` marks all modules, `n` unmarks all
+- Estimated total run time updates in real time as you select
+
+**Configure modules [9]** additionally shows the last run time for each module and marks unsaved changes with `*`. Press `r` to save and run immediately without going back to the main menu.
 
 ---
 
@@ -209,6 +215,7 @@ Edit `config.json` to customize behavior:
 scrub/
 ├── Run-Scrub.ps1          # Entry point / interactive menu
 ├── Install-Scrub.ps1      # User-level installer / uninstaller
+├── setup.cmd              # One-click installer (double-click to install)
 ├── scrub.psm1             # Main module / orchestrator
 ├── scrub.psd1             # Module manifest
 ├── scrub.cmd              # Terminal launcher (works from any folder)

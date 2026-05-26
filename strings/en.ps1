@@ -73,6 +73,11 @@
     # Module selector
     MOD_TITLE       = "Select modules:"
     MOD_ALWAYS      = "(Disk and disk health always run)"
+    MOD_ALL         = "mark all"
+    MOD_NONE        = "unmark all"
+    MOD_EST         = "est:"
+    MOD_UNSAVED     = "Unsaved changes. Exit? (y/N)"
+    MOD_RUN_NOW     = "save & run"
 
     # Frequencies
     FREQ_DAILY      = "daily"
@@ -167,6 +172,30 @@
     SCHED_TIME_ERR  = "Invalid format. Use HH:mm"
     SCHED_OK        = "Scheduled: every day at {0} (dry-run, report saved in reports\)"
     SCHED_FAIL      = "Failed:"
+
+    # Run summary
+    SUM_TITLE       = "Summary"
+    SUM_FREED       = "freed"
+    SUM_POTENTIAL   = "would free"
+    SUM_TOTAL       = "Total:"
+    SUM_NOTHING     = "--"
+
+    # Preset manager
+    PRESET_TITLE    = "Manage presets"
+    PRESET_ACTIVE   = "active:"
+    PRESET_BUILTIN  = "(built-in)"
+    PRESET_SAVE_NEW = "save as new preset"
+    PRESET_NAME_P   = "Preset name"
+    PRESET_EXISTS   = "Name already in use."
+    PRESET_EMPTY    = "No modules selected."
+    PRESET_SAVED    = "Preset saved."
+    PRESET_DELETED  = "Preset deleted."
+    PRESET_LOADED   = "Preset activated."
+    PRESET_CANT_DEL = "Cannot delete built-in presets."
+    PRESET_MANAGE   = "presets"
+
+    # Module config extras
+    MOD_RESET       = "reset"
 
     # Uninstall
     UNINSTALL_CONFIRM = "Remove Scrub from PATH, Start Menu and PS module?"

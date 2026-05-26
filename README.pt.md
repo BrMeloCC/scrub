@@ -31,28 +31,23 @@ scrub -ReportOnly  # só análise, abre relatório HTML
 
 **1. Baixe** a última [release](https://github.com/BrMeloCC/scrub/releases) e extraia em qualquer pasta.
 
-**2. Execute diretamente** — sem instalação:
+**2. Instale** clicando duas vezes em `setup.cmd` — sem necessidade de admin.
+
+Abra um **novo terminal** após instalar e use:
 
 ```
-scrub.cmd
+scrub              # dry run — analisa, não deleta nada
+scrub -Live        # modo live — pede confirmação antes de deletar
+scrub -ReportOnly  # só análise, abre relatório HTML
 ```
 
-Ou com flags:
+Para desinstalar: `setup.cmd -Uninstall`
 
-```powershell
-.\Run-Scrub.ps1 -NoMenu
-.\Run-Scrub.ps1 -Live
-```
-
-**3. Opcional: instale** para usar `scrub` em qualquer terminal (sem admin):
-
-```powershell
-.\Install-Scrub.ps1
-```
-
-O instalador adiciona a pasta ao PATH do usuário, registra o módulo PowerShell e cria atalho no Menu Iniciar. Abra um **novo terminal** após instalar.
-
-Para desinstalar: `.\Install-Scrub.ps1 -Uninstall`
+> **Sem instalar:** clique duas vezes em `scrub.cmd` direto, ou:
+> ```powershell
+> .\Run-Scrub.ps1 -NoMenu
+> .\Run-Scrub.ps1 -Live
+> ```
 
 ---
 
@@ -85,7 +80,7 @@ Para desinstalar: `.\Install-Scrub.ps1 -Uninstall`
   [7]  Analisar pasta         explorador de uso de disco interativo
   [8]  Histórico              gráficos de progresso e score ao longo do tempo
 
-  [9]  Configurar módulos     ativar/desativar, frequência e tempo estimado
+  [9]  Configurar módulos     ativar/desativar com última execução e tempo estimado
   [A]  Agendar execução diária
   [B]  Desinstalar
   [I]  Idioma / Language      alternar entre português e inglês
@@ -104,6 +99,17 @@ Exibido no topo de cada execução. Seta (↑↓→) indica tendência em relaç
 | Windows Updates pendentes | 15 |
 | Reboot pendente | 10 |
 | Drivers com problema | 10 |
+
+### Seleção de Módulos
+
+Os menus **Rotina específica [4]** e **Configurar módulos [9]** compartilham um seletor de módulos em comum:
+
+- Digite um número para marcar/desmarcar um módulo
+- Digite vários números separados por espaço para marcar vários de uma vez — ex: `2 3 5`
+- `a` marca todos os módulos, `n` desmarca todos
+- O tempo estimado total é atualizado em tempo real conforme você seleciona
+
+**Configurar módulos [9]** também exibe a data da última execução de cada módulo e marca alterações não salvas com `*`. Pressione `r` para salvar e executar na hora sem voltar ao menu principal.
 
 ---
 
@@ -209,6 +215,7 @@ Edite `config.json` para personalizar:
 scrub/
 ├── Run-Scrub.ps1          # Ponto de entrada / menu interativo
 ├── Install-Scrub.ps1      # Instalador/desinstalador de usuário
+├── setup.cmd              # Instalador com um clique (clique duplo para instalar)
 ├── scrub.psm1             # Módulo principal / orquestrador
 ├── scrub.psd1             # Manifesto do módulo
 ├── scrub.cmd              # Launcher do terminal (funciona em qualquer pasta)

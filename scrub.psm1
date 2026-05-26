@@ -196,7 +196,7 @@ function Invoke-Scrub {
 
     # -- Opt-in: Large File Finder --
     if ($cfg.modules.large_file_finder) {
-        Write-Host "  Large files..." -NoNewline
+        Write-Host "  Large files..."
         $r = Get-LargeFiles -ThresholdMB $cfg.size_threshold_mb -Limit $cfg.large_file_report_limit -LogPath $logPath
         $results["LargeFiles"] = $r
         Write-Host " $($r.FilesFound) files over $($r.ThresholdMB) MB ($($r.TotalSizeGB) GB)" -ForegroundColor Gray
@@ -204,7 +204,7 @@ function Invoke-Scrub {
 
     # -- Opt-in: Downloads Audit --
     if ($cfg.modules.downloads_audit) {
-        Write-Host "  Downloads audit..." -NoNewline
+        Write-Host "  Downloads audit..."
         $r = Get-DownloadsAudit -ReportAgeDays $cfg.min_age_days.downloads_report -LogPath $logPath
         $results["DownloadsAudit"] = $r
         Write-Host " $($r.FilesOld) files older than $($cfg.min_age_days.downloads_report) days ($($r.OldSizeMB) MB)" -ForegroundColor Gray
@@ -212,7 +212,7 @@ function Invoke-Scrub {
 
     # -- Opt-in: Duplicate Finder --
     if ($cfg.modules.duplicate_finder) {
-        Write-Host "  Duplicates..." -NoNewline
+        Write-Host "  Duplicates..."
         $paths = @($cfg.duplicate_finder.scan_paths)
         $r = Get-DuplicateFiles -ScanPaths $paths -MinSizeKB $cfg.duplicate_finder.min_size_kb -LogPath $logPath
         $results["DuplicateFinder"] = $r
@@ -280,7 +280,7 @@ function Invoke-Scrub {
     # -- Opt-in: System Repair (SFC + DISM) --
     if ($cfg.modules.system_repair) {
         $repairLabel = if ($DryRun) { "DISM check" } else { "SFC + DISM repair -- may take 10-30 min" }
-        Write-Host "  System repair ($repairLabel)..." -NoNewline
+        Write-Host "  System repair ($repairLabel)..."
         $r = Invoke-SystemRepair -DryRun $DryRun -LogPath $logPath
         $results["SystemRepair"] = $r
         if ($r.Errors -contains "REQUIRES_ADMIN") {
@@ -311,7 +311,7 @@ function Invoke-Scrub {
 
     # -- Opt-in: Windows Update Check --
     if ($cfg.modules.windows_update_check) {
-        Write-Host "  Windows Update..." -NoNewline
+        Write-Host "  Windows Update..."
         $r = Invoke-WindowsUpdateCheck -DryRun $DryRun -LogPath $logPath
         $results["WindowsUpdateCheck"] = $r
         if ($r.Errors.Count -gt 0 -and $r.PendingCount -eq 0) {

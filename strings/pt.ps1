@@ -73,6 +73,11 @@
     # Seletor de modulos
     MOD_TITLE       = "Selecione os modulos:"
     MOD_ALWAYS      = "(Disco e saude do disco sempre rodam)"
+    MOD_ALL         = "marcar todos"
+    MOD_NONE        = "desmarcar todos"
+    MOD_EST         = "est:"
+    MOD_UNSAVED     = "Alteracoes nao salvas. Sair? (s/N)"
+    MOD_RUN_NOW     = "salvar e executar"
 
     # Frequencias
     FREQ_DAILY      = "diario"
@@ -167,6 +172,30 @@
     SCHED_TIME_ERR  = "Formato invalido. Use HH:mm"
     SCHED_OK        = "Agendado: todo dia as {0} (dry-run, relatorio gerado em reports\)"
     SCHED_FAIL      = "Falha:"
+
+    # Resumo da execucao
+    SUM_TITLE       = "Resumo"
+    SUM_FREED       = "liberado"
+    SUM_POTENTIAL   = "liberaria"
+    SUM_TOTAL       = "Total:"
+    SUM_NOTHING     = "--"
+
+    # Gerenciar presets
+    PRESET_TITLE    = "Gerenciar presets"
+    PRESET_ACTIVE   = "ativo:"
+    PRESET_BUILTIN  = "(embutido)"
+    PRESET_SAVE_NEW = "salvar como novo preset"
+    PRESET_NAME_P   = "Nome do preset"
+    PRESET_EXISTS   = "Nome ja em uso."
+    PRESET_EMPTY    = "Nenhum modulo selecionado."
+    PRESET_SAVED    = "Preset salvo."
+    PRESET_DELETED  = "Preset removido."
+    PRESET_LOADED   = "Preset ativado."
+    PRESET_CANT_DEL = "Presets embutidos nao podem ser removidos."
+    PRESET_MANAGE   = "presets"
+
+    # Extras de configuracao de modulos
+    MOD_RESET       = "resetar"
 
     # Desinstalar
     UNINSTALL_CONFIRM = "Remover Scrub do PATH, Start Menu e modulo PS?"
