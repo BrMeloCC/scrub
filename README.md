@@ -1,5 +1,8 @@
 # Scrub
 
+[![Português](https://img.shields.io/badge/lang-Portugu%C3%AAs-green)](README.pt.md)
+[![English](https://img.shields.io/badge/lang-English-blue)](README.md)
+
 > Windows disk maintenance tool — safe by default, powerful when you need it.
 
 ![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11-blue?logo=windows)
