@@ -3,7 +3,7 @@
 [![Português](https://img.shields.io/badge/lang-Portugu%C3%AAs-green)](README.pt.md)
 [![English](https://img.shields.io/badge/lang-English-blue)](README.md)
 
-# 🧹 Scrub
+# Scrub
 
 **Windows disk maintenance — safe by default, powerful when you need it.**
 
@@ -16,7 +16,7 @@
 
 ---
 
-Scrub is a PowerShell-based maintenance tool with an interactive TUI menu.  
+Scrub is a PowerShell-based maintenance tool for Windows with an interactive TUI menu.  
 It runs in **dry-run mode by default** — nothing is deleted without explicit confirmation.
 
 ```
@@ -27,41 +27,50 @@ scrub -ReportOnly  # analysis only, opens HTML report
 
 ---
 
-## ⚡ Quick Start
+## Quick Start
 
 **1. Download** the latest [release](https://github.com/BrMeloCC/scrub/releases) and extract it anywhere.
 
-**2. Install** (no admin required):
+**2. Run directly** — no installation needed:
+
+```
+scrub.cmd
+```
+
+Or run with flags:
+
+```powershell
+.\Run-Scrub.ps1 -NoMenu
+.\Run-Scrub.ps1 -Live
+```
+
+**3. Optional: install** to use `scrub` from any terminal (no admin required):
 
 ```powershell
 .\Install-Scrub.ps1
 ```
 
-**3. Open a new terminal** and run:
-
-```
-scrub
-```
+The installer adds the tool directory to your user PATH, registers the PowerShell module, and creates a Start Menu shortcut. Open a **new terminal** after installing.
 
 To uninstall: `.\Install-Scrub.ps1 -Uninstall`
 
 ---
 
-## ✨ Features
+## Features
 
 | | |
 |---|---|
-| 🧠 **Smart routine** | Runs only overdue modules based on configurable schedules |
-| 📊 **Health Score** | 0–100 score: disk space, SMART, event log, drivers, updates |
-| 🧩 **22 modules** | Temp, browser cache, duplicates, startup, system repair and more |
-| 📁 **Folder analyzer** | Interactive visual disk space explorer |
-| 📈 **History & charts** | Sparkline progress tracking across runs |
-| 🌐 **Bilingual** | English and Portuguese UI |
-| 🔒 **Safe** | No admin needed for most ops · No telemetry · No network |
+| Smart routine | Runs only overdue modules based on configurable schedules |
+| Health Score | 0–100 score: disk space, SMART, event log, drivers, pending updates |
+| 22 modules | Temp, browser cache, duplicates, startup manager, system repair and more |
+| Folder analyzer | Interactive visual disk space explorer |
+| History & charts | Sparkline progress tracking across runs |
+| Bilingual | English and Portuguese UI |
+| Safe | No admin needed for most ops · No telemetry · No network |
 
 ---
 
-## 🗂️ Menu
+## Menu
 
 ```
   Score: 82  ↑   Preset: Custom   P = switch
@@ -98,7 +107,7 @@ Displayed at the top of every run. Trend arrow (↑↓→) shows change from the
 
 ---
 
-## 🧩 Modules
+## Modules
 
 <details>
 <summary><strong>Enabled by default</strong></summary>
@@ -139,7 +148,7 @@ Displayed at the top of every run. Trend arrow (↑↓→) shows change from the
 
 ---
 
-## ⚙️ Configuration
+## Configuration
 
 Edit `config.json` to customize behavior:
 
@@ -182,7 +191,7 @@ Edit `config.json` to customize behavior:
 
 ---
 
-## 🔒 Security
+## Security
 
 - Dry-run is the **default** in every module
 - Live mode requires typing `yes` / `sim` to confirm before any deletion
@@ -194,7 +203,7 @@ Edit `config.json` to customize behavior:
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 scrub/
@@ -202,7 +211,7 @@ scrub/
 ├── Install-Scrub.ps1      # User-level installer / uninstaller
 ├── scrub.psm1             # Main module / orchestrator
 ├── scrub.psd1             # Module manifest
-├── scrub.cmd              # Terminal launcher
+├── scrub.cmd              # Terminal launcher (works from any folder)
 ├── config.json            # Default configuration
 ├── strings/
 │   ├── en.ps1             # English UI strings
@@ -212,6 +221,6 @@ scrub/
 
 ---
 
-## 📜 License
+## License
 
 MIT — free to use, modify and distribute.

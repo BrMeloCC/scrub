@@ -3,7 +3,7 @@
 [![Português](https://img.shields.io/badge/lang-Portugu%C3%AAs-green)](README.pt.md)
 [![English](https://img.shields.io/badge/lang-English-blue)](README.md)
 
-# 🧹 Scrub
+# Scrub
 
 **Manutenção de disco para Windows — seguro por padrão, poderoso quando necessário.**
 
@@ -27,41 +27,50 @@ scrub -ReportOnly  # só análise, abre relatório HTML
 
 ---
 
-## ⚡ Início Rápido
+## Início Rápido
 
 **1. Baixe** a última [release](https://github.com/BrMeloCC/scrub/releases) e extraia em qualquer pasta.
 
-**2. Instale** (sem admin):
+**2. Execute diretamente** — sem instalação:
+
+```
+scrub.cmd
+```
+
+Ou com flags:
+
+```powershell
+.\Run-Scrub.ps1 -NoMenu
+.\Run-Scrub.ps1 -Live
+```
+
+**3. Opcional: instale** para usar `scrub` em qualquer terminal (sem admin):
 
 ```powershell
 .\Install-Scrub.ps1
 ```
 
-**3. Abra um novo terminal** e execute:
-
-```
-scrub
-```
+O instalador adiciona a pasta ao PATH do usuário, registra o módulo PowerShell e cria atalho no Menu Iniciar. Abra um **novo terminal** após instalar.
 
 Para desinstalar: `.\Install-Scrub.ps1 -Uninstall`
 
 ---
 
-## ✨ Funcionalidades
+## Funcionalidades
 
 | | |
 |---|---|
-| 🧠 **Rotina inteligente** | Roda apenas o que está devido, com base em frequências configuráveis |
-| 📊 **Health Score** | Pontuação 0–100: espaço livre, SMART, event log, drivers, updates |
-| 🧩 **22 módulos** | Temp, cache de browser, duplicatas, startup, reparo do sistema e mais |
-| 📁 **Analisador de pastas** | Explorador visual interativo de uso de disco |
-| 📈 **Histórico & gráficos** | Acompanhamento de progresso ao longo das execuções |
-| 🌐 **Bilíngue** | Interface em português e inglês |
-| 🔒 **Seguro** | Sem admin na maioria das ops · Sem telemetria · Sem rede |
+| Rotina inteligente | Roda apenas o que está devido, com base em frequências configuráveis |
+| Health Score | Pontuação 0–100: espaço livre, SMART, event log, drivers, updates |
+| 22 módulos | Temp, cache de browser, duplicatas, startup manager, reparo do sistema e mais |
+| Analisador de pastas | Explorador visual interativo de uso de disco |
+| Histórico & gráficos | Acompanhamento de progresso ao longo das execuções |
+| Bilíngue | Interface em português e inglês |
+| Seguro | Sem admin na maioria das ops · Sem telemetria · Sem rede |
 
 ---
 
-## 🗂️ Menu
+## Menu
 
 ```
   Score: 82  ↑   Preset: Customizado   P = alternar
@@ -98,7 +107,7 @@ Exibido no topo de cada execução. Seta (↑↓→) indica tendência em relaç
 
 ---
 
-## 🧩 Módulos
+## Módulos
 
 <details>
 <summary><strong>Ativos por padrão</strong></summary>
@@ -139,7 +148,7 @@ Exibido no topo de cada execução. Seta (↑↓→) indica tendência em relaç
 
 ---
 
-## ⚙️ Configuração
+## Configuração
 
 Edite `config.json` para personalizar:
 
@@ -182,7 +191,7 @@ Edite `config.json` para personalizar:
 
 ---
 
-## 🔒 Segurança
+## Segurança
 
 - Dry-run é o **padrão** em todos os módulos
 - Modo live exige digitar `sim` / `yes` para confirmar antes de qualquer deleção
@@ -194,7 +203,7 @@ Edite `config.json` para personalizar:
 
 ---
 
-## 📁 Estrutura do Projeto
+## Estrutura do Projeto
 
 ```
 scrub/
@@ -202,7 +211,7 @@ scrub/
 ├── Install-Scrub.ps1      # Instalador/desinstalador de usuário
 ├── scrub.psm1             # Módulo principal / orquestrador
 ├── scrub.psd1             # Manifesto do módulo
-├── scrub.cmd              # Launcher do terminal
+├── scrub.cmd              # Launcher do terminal (funciona em qualquer pasta)
 ├── config.json            # Configuração padrão
 ├── strings/
 │   ├── en.ps1             # Strings em inglês
@@ -212,6 +221,6 @@ scrub/
 
 ---
 
-## 📜 Licença
+## Licença
 
 MIT — livre para usar, modificar e distribuir.
