@@ -197,9 +197,10 @@ function Format-SizeBar {
 
 function Show-LivePreview {
     param([hashtable] $Toggles, [string] $ConfigPath = "")
+    Clear-Host
     Write-Host ""
     Write-Host "  $($script:ScrubStr.PREVIEW_RUNNING)" -ForegroundColor DarkGray
-    $res = Invoke-ScrubCustom -Toggles $Toggles -DryRun $true
+    $res = Invoke-ScrubCustom -Toggles $Toggles -DryRun $true 6>$null
     Write-ScrubHeader
     Write-Host "  $($script:ScrubStr.PREVIEW_TITLE)" -ForegroundColor White
     Write-Host ""
