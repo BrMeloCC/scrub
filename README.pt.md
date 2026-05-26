@@ -1,104 +1,73 @@
-# Scrub
+<div align="center">
 
 [![Português](https://img.shields.io/badge/lang-Portugu%C3%AAs-green)](README.pt.md)
 [![English](https://img.shields.io/badge/lang-English-blue)](README.md)
 
-> Ferramenta de manutenção de disco para Windows — segura por padrão, poderosa quando necessário.
+# 🧹 Scrub
 
-![Plataforma](https://img.shields.io/badge/plataforma-Windows%2010%2F11-blue?logo=windows)
-![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-blue?logo=powershell)
-![Versão](https://img.shields.io/badge/vers%C3%A3o-1.0.0-green)
-![Licença](https://img.shields.io/badge/licen%C3%A7a-MIT-lightgrey)
+**Manutenção de disco para Windows — seguro por padrão, poderoso quando necessário.**
+
+[![Plataforma](https://img.shields.io/badge/Windows-10%2F11-0078D4?logo=windows&logoColor=white)](https://github.com/BrMeloCC/scrub)
+[![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-012456?logo=powershell&logoColor=white)](https://github.com/BrMeloCC/scrub)
+[![Versão](https://img.shields.io/github/v/release/BrMeloCC/scrub?color=brightgreen&label=release)](https://github.com/BrMeloCC/scrub/releases)
+[![Licença](https://img.shields.io/badge/licen%C3%A7a-MIT-lightgrey)](LICENSE)
+
+</div>
+
+---
 
 Scrub é uma ferramenta de manutenção para Windows com menu TUI interativo.  
 Roda em **dry-run por padrão** — nada é deletado sem confirmação explícita.
 
----
-
-## Funcionalidades
-
-- **Rotina inteligente** — roda apenas o que está "devido" com base em frequências configuráveis
-- **Health Score** — pontuação 0–100 com base em espaço livre, SMART, event log, drivers e updates
-- **22 módulos** — temp cleaner, cache de browser, arquivos grandes, duplicatas, startup manager, reparo do sistema e mais
-- **Analisador de pastas interativo** — explorador visual de uso de disco
-- **Histórico & gráficos** — acompanhamento de progresso ao longo das execuções
-- **Bilíngue** — interface em português e inglês
-- **Sem admin** na maioria das operações; sem dependências externas; sem telemetria
+```
+scrub              # dry run — analisa, não deleta nada
+scrub -Live        # modo live — pede confirmação antes de deletar
+scrub -ReportOnly  # só análise, abre relatório HTML
+```
 
 ---
 
-## Requisitos
+## ⚡ Início Rápido
 
-- Windows 10 / 11
-- PowerShell 5.1 ou superior (já incluído no Windows)
+**1. Baixe** a última [release](https://github.com/BrMeloCC/scrub/releases) e extraia em qualquer pasta.
 
----
-
-## Instalação
-
-Baixe a última [release](https://github.com/BrMeloCC/scrub/releases), extraia em qualquer pasta e execute:
+**2. Instale** (sem admin):
 
 ```powershell
 .\Install-Scrub.ps1
 ```
 
-O instalador (sem admin):
-1. Cria `scrub.cmd` na pasta do projeto
-2. Adiciona a pasta ao PATH do usuário (`HKCU\Environment`)
-3. Registra o módulo PowerShell via junction
-4. Cria atalho no Menu Iniciar
-
-Após instalar, **abra um novo terminal** e use o comando `scrub`.
-
-**Para desinstalar:**
-
-```powershell
-.\Install-Scrub.ps1 -Uninstall
-```
-
-> A pasta do projeto **não é deletada** — apenas atalhos e entradas de PATH são removidos.
-
----
-
-## Uso
-
-### Menu interativo (padrão)
+**3. Abra um novo terminal** e execute:
 
 ```
 scrub
 ```
 
-### Via flags (sem menu)
-
-```powershell
-.\Run-Scrub.ps1 -NoMenu             # dry-run silencioso, gera relatório
-.\Run-Scrub.ps1 -Live               # modo live (pede confirmação antes de deletar)
-.\Run-Scrub.ps1 -ReportOnly         # análise completa, abre relatório HTML
-.\Run-Scrub.ps1 -Watch              # monitor em tempo real (Ctrl+C para sair)
-.\Run-Scrub.ps1 -Watch -WatchInterval 60
-.\Run-Scrub.ps1 -ConfigPath C:\meu.json
-```
-
-### Via módulo PowerShell
-
-```powershell
-Import-Module .\scrub.psd1
-
-Invoke-Scrub                   # dry-run
-Invoke-Scrub -DryRun:$false    # modo live
-Get-ScrubReport                # somente análise
-New-ScrubConfig                # resetar config para os padrões
-```
+Para desinstalar: `.\Install-Scrub.ps1 -Uninstall`
 
 ---
 
-## Menu
+## ✨ Funcionalidades
+
+| | |
+|---|---|
+| 🧠 **Rotina inteligente** | Roda apenas o que está devido, com base em frequências configuráveis |
+| 📊 **Health Score** | Pontuação 0–100: espaço livre, SMART, event log, drivers, updates |
+| 🧩 **22 módulos** | Temp, cache de browser, duplicatas, startup, reparo do sistema e mais |
+| 📁 **Analisador de pastas** | Explorador visual interativo de uso de disco |
+| 📈 **Histórico & gráficos** | Acompanhamento de progresso ao longo das execuções |
+| 🌐 **Bilíngue** | Interface em português e inglês |
+| 🔒 **Seguro** | Sem admin na maioria das ops · Sem telemetria · Sem rede |
+
+---
+
+## 🗂️ Menu
 
 ```
   Score: 82  ↑   Preset: Customizado   P = alternar
 
   [1]  Rotina inteligente     roda só o que é necessário, estima o tempo
-  [2]  Rotina completa        dry-run -- analisa, não deleta nada
+  [2]  Rotina completa        dry-run — analisa, não deleta nada
   [3]  Rotina completa LIVE   deleta de verdade (pede confirmação)
   [4]  Rotina específica      escolha quais módulos rodar
 
@@ -116,52 +85,66 @@ New-ScrubConfig                # resetar config para os padrões
 
 ### Health Score
 
-Exibido no topo do menu. Calculado após cada execução:
+Exibido no topo de cada execução. Seta (↑↓→) indica tendência em relação à medição anterior.
 
 | Dimensão | Pontos |
-|---|---|
+|---|:---:|
 | Espaço livre no drive principal | 25 |
 | Saúde dos discos (SMART) | 20 |
 | Erros no Event Log (últimas 24h) | 20 |
-| Reboot pendente | 10 |
 | Windows Updates pendentes | 15 |
+| Reboot pendente | 10 |
 | Drivers com problema | 10 |
 
-Seta (↑↓→) indica tendência em relação à medição anterior. Histórico em `health_history.json` (últimas 90 medições).
+---
+
+## 🧩 Módulos
+
+<details>
+<summary><strong>Ativos por padrão</strong></summary>
+
+| Módulo | Descrição |
+|---|---|
+| `temp_cleaner` | Limpa `%TEMP%` e `C:\Windows\Temp` |
+| `recycle_bin` | Remove itens antigos da Lixeira |
+| `disk_report` | Relatório de uso por drive (sempre ativo) |
+| `health_check` | Saúde dos discos via SMART/WMI (sempre ativo) |
+| `driver_audit` | Dispositivos com erro; rescan PnP no modo live |
+| `browser_cache` | Cache do Chrome, Edge e Firefox |
+| `large_file_finder` | Lista arquivos acima do limite (só relatório) |
+| `downloads_audit` | Arquivos antigos em Downloads (só relatório) |
+| `event_log_scan` | Eventos críticos/erro nos logs do Windows |
+| `startup_audit` | Programas e tarefas que iniciam com o Windows |
+| `system_log_clean` | Logs CBS, minidumps, relatórios WER, MEMORY.DMP |
+| `node_cache_clean` | Caches do npm, yarn e pnpm |
+| `restore_point` | Cria ponto de restauração antes de limpar (live) |
+| `disk_optimize` | TRIM em SSDs, desfragmentação em HDDs |
+| `windows_update_check` | Verifica e dispara Windows Updates pendentes |
+| `software_audit` | Software instalado recentemente (só relatório) |
+
+</details>
+
+<details>
+<summary><strong>Desativados por padrão</strong></summary>
+
+| Módulo | Descrição |
+|---|---|
+| `duplicate_finder` | Duplicatas por SHA256 — lento, configure `scan_paths` primeiro |
+| `hiberfil_cleaner` | Desativa hibernação e Fast Startup permanentemente |
+| `system_repair` | SFC + DISM — 30–60 min, requer admin |
+| `windows_update_cache` | Limpa cache do Windows Update — requer admin |
+| `dev_project_clean` | Remove build/deps de projetos dev inativos |
+
+</details>
 
 ---
 
-## Módulos
+## ⚙️ Configuração
 
-| Módulo | Padrão | Descrição |
-|---|---|---|
-| `temp_cleaner` | ✅ | Limpa `%TEMP%` e `C:\Windows\Temp` |
-| `recycle_bin` | ✅ | Remove itens antigos da Lixeira |
-| `disk_report` | ✅ | Relatório de uso por drive (sempre ativo) |
-| `health_check` | ✅ | Saúde dos discos via SMART/WMI (sempre ativo) |
-| `driver_audit` | ✅ | Dispositivos com erro; rescan PnP no modo live |
-| `browser_cache` | ✅ | Cache do Chrome, Edge e Firefox |
-| `large_file_finder` | ✅ | Lista arquivos acima do limite (só relatório) |
-| `downloads_audit` | ✅ | Arquivos antigos em Downloads (só relatório) |
-| `event_log_scan` | ✅ | Eventos críticos/erro nos logs do Windows |
-| `startup_audit` | ✅ | Programas e tarefas que iniciam com o Windows |
-| `system_log_clean` | ✅ | Logs CBS, minidumps, relatórios WER, MEMORY.DMP |
-| `node_cache_clean` | ✅ | Caches do npm, yarn e pnpm |
-| `restore_point` | ✅ | Cria ponto de restauração antes de limpar (live) |
-| `disk_optimize` | ✅ | TRIM em SSDs, desfragmentação em HDDs |
-| `windows_update_check` | ✅ | Verifica e dispara Windows Updates pendentes |
-| `software_audit` | ✅ | Software instalado recentemente (só relatório) |
-| `duplicate_finder` | ❌ | Duplicatas por hash SHA256 (lento; configure `scan_paths`) |
-| `hiberfil_cleaner` | ❌ | Desativa hibernação e Fast Startup (permanente) |
-| `system_repair` | ❌ | SFC + DISM (30–60 min; requer admin) |
-| `windows_update_cache` | ❌ | Limpa cache do Windows Update (requer admin) |
-| `dev_project_clean` | ❌ | Pastas de build/deps de projetos dev inativos |
+Edite `config.json` para personalizar:
 
----
-
-## Configuração
-
-Edite `config.json` para personalizar. Principais opções:
+<details>
+<summary><strong>Ver referência completa</strong></summary>
 
 ```json
 {
@@ -171,37 +154,47 @@ Edite `config.json` para personalizar. Principais opções:
   "min_age_days": {
     "temp_files": 3,
     "recycle_bin": 30,
-    "browser_cache": 7
+    "browser_cache": 7,
+    "downloads_report": 60,
+    "event_log_scan": 7,
+    "software_audit": 30
   },
   "browser_cache": { "chrome": true, "edge": true, "firefox": true },
+  "duplicate_finder": { "scan_paths": [], "min_size_kb": 100 },
   "dev_cleanup": {
     "scan_paths": ["C:\\DEV"],
     "min_age_days": 30,
-    "targets": ["node_modules", ".venv", "target", "dist", "build", ...]
+    "targets": ["node_modules", ".venv", "target", "dist", "build", ".next", ".gradle"]
   },
+  "excluded_paths": [],
   "schedule": {
-    "temp_cleaner": { "freq_days": 1, "est_secs": 10 },
-    "browser_cache": { "freq_days": 7, "est_secs": 15 }
+    "temp_cleaner":         { "freq_days": 1,  "est_secs": 10   },
+    "recycle_bin":          { "freq_days": 1,  "est_secs": 5    },
+    "browser_cache":        { "freq_days": 7,  "est_secs": 15   },
+    "large_file_finder":    { "freq_days": 7,  "est_secs": 30   },
+    "duplicate_finder":     { "freq_days": 30, "est_secs": 300  },
+    "system_repair":        { "freq_days": 30, "est_secs": 1800 }
   }
 }
 ```
 
+</details>
+
 ---
 
-## Segurança
+## 🔒 Segurança
 
-- Dry-run é o padrão em todos os módulos
-- Modo live exige confirmação textual (`sim` / `yes`) antes de deletar
-- Todos os caminhos de limpeza são whitelists fixas no código
-- `dev_project_clean` deleta apenas pastas que estão na lista `targets`, nunca o projeto inteiro
+- Dry-run é o **padrão** em todos os módulos
+- Modo live exige digitar `sim` / `yes` para confirmar antes de qualquer deleção
+- Todos os caminhos de limpeza são **whitelists fixas** no código
+- `dev_project_clean` deleta apenas pastas da lista `targets`, nunca o projeto inteiro
 - Nunca toca: Documents, Desktop, Pictures, Music, Videos, OneDrive
-- Operações que requerem admin são detectadas e reportadas — nunca falham silenciosamente
-- Instalação modifica apenas o PATH do **usuário** (`HKCU`) — nunca o PATH do sistema
-- Sem telemetria, sem conexões de rede
+- Modifica apenas o PATH do **usuário** (`HKCU`) — nunca o PATH do sistema
+- Sem telemetria · Sem conexões de rede
 
 ---
 
-## Estrutura do Projeto
+## 📁 Estrutura do Projeto
 
 ```
 scrub/
@@ -219,6 +212,6 @@ scrub/
 
 ---
 
-## Licença
+## 📜 Licença
 
 MIT — livre para usar, modificar e distribuir.
